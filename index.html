@@ -87,7 +87,7 @@
 <body>
 
 <div class="header-bar">
-    <div class="logo">📅 後慈湖管理系統 (試營運)</div>
+    <div class="logo">📅 後慈湖管理系統 (試營運版)</div>
     <div class="toolbar">
         顯示梯次 <input type="number" id="batchCount" value="4" min="1" max="16" oninput="render()" style="width:45px; border:none; font-weight:bold; text-align:center;">
     </div>
@@ -112,12 +112,12 @@
         </div>
         <div class="form-group"><label>代表人姓名</label><input type="text" id="editLeader"></div>
         <div class="form-group"><label>聯絡電話</label><input type="text" id="editPhone"></div>
-        <button onclick="saveAndPrint()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">儲存並列印 (Enter)</button>
+        <button onclick="saveAndPrint()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">儲存並列印兩張 (Enter)</button>
     </div>
 </div>
 
 <script>
-// 根據圖片二調整試營運預設時間
+// 依據圖片資訊設定試營運梯次
 const defaultData = [
     {id:1, name:'第一梯次', time:'08:45-09:00'}, 
     {id:3, name:'第三梯次', time:'09:45-10:00'},
@@ -168,7 +168,6 @@ function render() {
     const limit = parseInt(document.getElementById('batchCount').value) || 4;
     grid.innerHTML = '';
     
-    // 只顯示前 limit 個梯次
     items.slice(0, limit).forEach(d => {
         const remain = d.total - d.used;
         const card = document.createElement('div');
@@ -178,7 +177,7 @@ function render() {
             <div class="status-tag">${remain <= 0 ? '額滿' : '有位'}</div>
             <div class="card-header">
                 <div class="batch-name">${d.name}</div>
-                <div class="batch-time">報到：${d.time}</div>
+                <div class="batch-time">報到時間：${d.time}</div>
             </div>
             <div class="card-body">
                 <div class="info-row"><b>總名額</b><span>${d.total}</span></div>
@@ -213,16 +212,14 @@ function closePanel() {
 
 function saveAndPrint() {
     const idx = items.findIndex(i => i.id === activeId);
-    const newTime = document.getElementById('editTime').value;
-    
-    items[idx].time = newTime;
+    items[idx].time = document.getElementById('editTime').value;
     items[idx].total = parseInt(document.getElementById('editTotal').value) || 50;
     items[idx].used = parseInt(document.getElementById('editUsed').value) || 0;
     items[idx].leader = document.getElementById('editLeader').value;
     items[idx].phone = document.getElementById('editPhone').value;
 
     const savedTimes = JSON.parse(localStorage.getItem('huchihu_saved_times') || '{}');
-    savedTimes[activeId] = newTime;
+    savedTimes[activeId] = items[idx].time;
     localStorage.setItem('huchihu_saved_times', JSON.stringify(savedTimes));
     localStorage.setItem('huchihu_daily_data', JSON.stringify(items));
 
@@ -235,42 +232,13 @@ function saveAndPrint() {
 }
 
 function doPrint(name, phone, used, time) {
-    const win = window.open('', '_blank', 'width=450,height=600');
+    const win = window.open('', '_blank', 'width=450,height=800');
     if (!win) {
         alert('列印視窗被攔截！請點擊網址列右側允許彈出視窗。');
         return;
     }
-    win.document.write(`
-        <html><head><style>
-            body { font-family: sans-serif; width: 57mm; padding: 5px; text-align: center; }
-            .h { border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; }
-            td { border: 1px solid #000; padding: 8px; font-size: 14px; text-align: left; font-weight: bold; }
-            .l { width: 30%; background: #eee; text-align: center; }
-            .footer-text { font-size: 11px; text-align: left; margin-top: 15px; line-height: 1.4; border-top: 1px dashed #000; padding-top: 10px; }
-        </style></head>
-        <body>
-            <div class="h"><h3>後慈湖</h3><p>現場遞補預約單</p></div>
-            <table>
-                <tr><td class="l">日期</td><td>${new Date().toLocaleDateString('zh-TW')}</td></tr>
-                <tr><td class="l">報到時間</td><td>${time}</td></tr>
-                <tr><td class="l">姓名</td><td>${name || ''}</td></tr>
-                <tr><td class="l">電話</td><td>${phone || ''}</td></tr>
-                <tr><td class="l">人數</td><td>共 ${used} 人</td></tr>
-            </table>
-            <div class="footer-text">
-                1. 符合優惠者請代表收集證件 (身分證、志工卡、身障手冊等)<br>
-                2. 導覽服務站：03-38895554
-            </div>
-            <script>
-                window.onload = function() { window.print(); setTimeout(() => window.close(), 500); }
-            <\/script>
-        </body></html>
-    `);
-    win.document.close();
-}
-
-init();
-</script>
-</body>
-</html>
+    
+    const dateStr = new Date().toLocaleDateString('zh-TW');
+    
+    // 生成單張內容的函式
+    const getTicketHtml
