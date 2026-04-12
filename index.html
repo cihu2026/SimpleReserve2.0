@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleReserve Pro | 後慈湖試營運管理系統</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bg: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text: #0f172a;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .header-bar {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-weight: 900; font-size: 1.5rem; color: var(--primary); }
+
+        .toolbar {
+            display: flex; gap: 10px; align-items: center; background: #fff;
+            padding: 5px 15px; border-radius: 50px; box-shadow: var(--shadow);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: var(--shadow); transition: 0.3s; cursor: pointer; position: relative;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        .card-header { padding: 20px 15px; text-align: center; background: #f8fafc; border-radius: 20px 20px 0 0; }
+        .batch-name { font-weight: 800; font-size: 1.1rem; }
+        .batch-time { font-size: 0.95rem; color: var(--primary); font-weight: bold; background: #fff; padding: 2px 10px; border-radius: 20px; margin-top: 8px; border: 1px solid #e2e8f0; }
+
+        .card-body { padding: 15px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .remain-val { font-size: 1.5rem; font-weight: 900; color: var(--success); }
+
+        .status-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; background: var(--success); color: white; font-weight: 800; }
+        
+        #editOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
+        #editPanel { position: fixed; right: 20px; top: 80px; width: 360px; background: white; border-radius: 20px; z-index: 1000; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .panel-header { background: var(--primary); color: white; padding: 15px 20px; font-weight: bold; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; }
+        .panel-body { padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #475569; }
+        input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        
+        .hidden { display: none !important; }
+        .full { border-color: var(--danger); opacity: 0.8; }
+        .full .status-tag { background: var(--danger); }
+        .full .remain-val { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <div class="logo">📅 後慈湖管理系統 (試營運)</div>
+    <div class="toolbar">
+        顯示梯次 <input type="number" id="batchCount" value="4" min="1" max="16" oninput="render()" style="width:45px; border:none; font-weight:bold; text-align:center;">
+    </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="editOverlay" onclick="closePanel()"></div>
+<div id="editPanel" class="hidden">
+    <div class="panel-header">
+        <span id="panelTitle">編輯梯次資訊</span>
+        <button onclick="closePanel()" style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">&times;</button>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <label>報到時間</label>
+            <input type="text" id="editTime">
+        </div>
+        <div style="display: flex; gap:10px;">
+            <div class="form-group" style="flex:1;"><label>總名額</label><input type="number" id="editTotal"></div>
+            <div class="form-group" style="flex:1;"><label>已登記</label><input type="number" id="editUsed"></div>
+        </div>
+        <div class="form-group"><label>代表人姓名</label><input type="text" id="editLeader"></div>
+        <div class="form-group"><label>聯絡電話</label><input type="text" id="editPhone"></div>
+        <button onclick="saveAndPrint()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">儲存並列印 (Enter)</button>
+    </div>
+</div>
+
+<script>
+// 根據圖片二調整試營運預設時間
+const defaultData = [
+    {id:1, name:'第一梯次', time:'08:45-09:00'}, 
+    {id:3, name:'第三梯次', time:'09:45-10:00'},
+    {id:5, name:'第五梯次', time:'10:45-11:00'}, 
+    {id:7, name:'第七梯次', time:'12:45-13:00'},
+    {id:2, name:'第二梯次', time:'09:15-09:30'},
+    {id:4, name:'第四梯次', time:'10:15-10:30'},
+    {id:6, name:'第六梯次', time:'11:15-11:30'},
+    {id:8, name:'第八梯次', time:'13:15-13:30'}
+];
+
+let items = [];
+let activeId = null;
+
+function init() {
+    const today = new Date().toLocaleDateString('zh-TW');
+    const savedDate = localStorage.getItem('huchihu_last_date');
+    const savedTimes = JSON.parse(localStorage.getItem('huchihu_saved_times') || '{}');
+    let savedData = JSON.parse(localStorage.getItem('huchihu_daily_data') || '[]');
+
+    if (savedDate !== today) {
+        savedData = [];
+        localStorage.setItem('huchihu_last_date', today);
+        localStorage.removeItem('huchihu_daily_data');
+    }
+
+    items = defaultData.map(d => {
+        const dayRecord = savedData.find(s => s.id === d.id) || {};
+        return {
+            ...d,
+            time: savedTimes[d.id] || d.time,
+            total: dayRecord.total || 50,
+            used: dayRecord.used || 0,
+            leader: dayRecord.leader || '',
+            phone: dayRecord.phone || ''
+        };
+    });
+
+    render();
+
+    window.addEventListener('keydown', e => {
+        if(e.key === 'Enter' && !document.getElementById('editPanel').classList.contains('hidden')) saveAndPrint();
+    });
+}
+
+function render() {
+    const grid = document.getElementById('grid');
+    const limit = parseInt(document.getElementById('batchCount').value) || 4;
+    grid.innerHTML = '';
+    
+    // 只顯示前 limit 個梯次
+    items.slice(0, limit).forEach(d => {
+        const remain = d.total - d.used;
+        const card = document.createElement('div');
+        card.className = `card ${remain <= 0 ? 'full' : ''}`;
+        card.onclick = () => openEdit(d.id);
+        card.innerHTML = `
+            <div class="status-tag">${remain <= 0 ? '額滿' : '有位'}</div>
+            <div class="card-header">
+                <div class="batch-name">${d.name}</div>
+                <div class="batch-time">報到：${d.time}</div>
+            </div>
+            <div class="card-body">
+                <div class="info-row"><b>總名額</b><span>${d.total}</span></div>
+                <div class="info-row"><b>已登記</b><span>${d.used}</span></div>
+                <div class="info-row" style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
+                    <b>可遞補</b><span class="remain-val">${Math.max(0, remain)}</span>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function openEdit(id) {
+    activeId = id;
+    const d = items.find(i => i.id === id);
+    document.getElementById('panelTitle').innerText = d.name;
+    document.getElementById('editTime').value = d.time;
+    document.getElementById('editTotal').value = d.total;
+    document.getElementById('editUsed').value = d.used;
+    document.getElementById('editLeader').value = d.leader;
+    document.getElementById('editPhone').value = d.phone;
+    document.getElementById('editOverlay').style.display = 'block';
+    document.getElementById('editPanel').classList.remove('hidden');
+    document.getElementById('editUsed').focus();
+}
+
+function closePanel() {
+    document.getElementById('editOverlay').style.display = 'none';
+    document.getElementById('editPanel').classList.add('hidden');
+}
+
+function saveAndPrint() {
+    const idx = items.findIndex(i => i.id === activeId);
+    const newTime = document.getElementById('editTime').value;
+    
+    items[idx].time = newTime;
+    items[idx].total = parseInt(document.getElementById('editTotal').value) || 50;
+    items[idx].used = parseInt(document.getElementById('editUsed').value) || 0;
+    items[idx].leader = document.getElementById('editLeader').value;
+    items[idx].phone = document.getElementById('editPhone').value;
+
+    const savedTimes = JSON.parse(localStorage.getItem('huchihu_saved_times') || '{}');
+    savedTimes[activeId] = newTime;
+    localStorage.setItem('huchihu_saved_times', JSON.stringify(savedTimes));
+    localStorage.setItem('huchihu_daily_data', JSON.stringify(items));
+
+    if(items[idx].used > 0) {
+        doPrint(items[idx].leader, items[idx].phone, items[idx].used, items[idx].time);
+    }
+    
+    render();
+    closePanel();
+}
+
+function doPrint(name, phone, used, time) {
+    const win = window.open('', '_blank', 'width=450,height=600');
+    if (!win) {
+        alert('列印視窗被攔截！請點擊網址列右側允許彈出視窗。');
+        return;
+    }
+    win.document.write(`
+        <html><head><style>
+            body { font-family: sans-serif; width: 57mm; padding: 5px; text-align: center; }
+            .h { border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; }
+            td { border: 1px solid #000; padding: 8px; font-size: 14px; text-align: left; font-weight: bold; }
+            .l { width: 30%; background: #eee; text-align: center; }
+            .footer-text { font-size: 11px; text-align: left; margin-top: 15px; line-height: 1.4; border-top: 1px dashed #000; padding-top: 10px; }
+        </style></head>
+        <body>
+            <div class="h"><h3>後慈湖</h3><p>現場遞補預約單</p></div>
+            <table>
+                <tr><td class="l">日期</td><td>${new Date().toLocaleDateString('zh-TW')}</td></tr>
+                <tr><td class="l">報到時間</td><td>${time}</td></tr>
+                <tr><td class="l">姓名</td><td>${name || ''}</td></tr>
+                <tr><td class="l">電話</td><td>${phone || ''}</td></tr>
+                <tr><td class="l">人數</td><td>共 ${used} 人</td></tr>
+            </table>
+            <div class="footer-text">
+                1. 符合優惠者請代表收集證件 (身分證、志工卡、身障手冊等)<br>
+                2. 導覽服務站：03-38895554
+            </div>
+            <script>
+                window.onload = function() { window.print(); setTimeout(() => window.close(), 500); }
+            <\/script>
+        </body></html>
+    `);
+    win.document.close();
+}
+
+init();
+</script>
+</body>
+</html>
