@@ -3,33 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimpleReserve Pro | 後慈湖試營運管理系統</title>
+    <title>SimpleReserve 後台管理 (四列佈局)</title>
     <style>
         :root {
-            --primary: #3b82f6;
+            --primary: #2563eb;
             --danger: #ef4444;
-            --success: #10b981;
+            --success: #22c55e;
             --bg: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text: #0f172a;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --card-bg: #ffffff;
+            --text: #1e293b;
         }
 
         body {
             margin: 0;
-            background-color: var(--bg);
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 20px 20px;
+            background: var(--bg);
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
             color: var(--text);
-            font-size: 14px;
         }
 
+        /* 頂部工具列 */
         .header-bar {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            background: #ffffff;
+            padding: 0.8rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -38,58 +34,152 @@
             z-index: 100;
         }
 
-        .logo { font-weight: 900; font-size: 1.5rem; color: var(--primary); }
-
         .toolbar {
-            display: flex; gap: 10px; align-items: center; background: #fff;
-            padding: 5px 15px; border-radius: 50px; box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
         }
 
+        input[type="number"], input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        button {
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        /* 梯次網格 - 固定四列 */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: repeat(4, 1fr); /* 這裡設定一排四個 */
+            gap: 15px;
+            padding: 20px;
         }
 
+        /* 梯次卡片 */
         .card {
-            background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.5);
-            box-shadow: var(--shadow); transition: 0.3s; cursor: pointer; position: relative;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #e2e8f0;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
 
-        .card-header { padding: 20px 15px; text-align: center; background: #f8fafc; border-radius: 20px 20px 0 0; }
-        .batch-name { font-weight: 800; font-size: 1.1rem; }
-        .batch-time { font-size: 0.95rem; color: var(--primary); font-weight: bold; background: #fff; padding: 2px 10px; border-radius: 20px; margin-top: 8px; border: 1px solid #e2e8f0; }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px -3px rgba(0,0,0,0.1);
+        }
 
-        .card-body { padding: 15px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .remain-val { font-size: 1.5rem; font-weight: 900; color: var(--success); }
+        .card-header {
+            background: #f8fafc;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-        .status-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; background: var(--success); color: white; font-weight: 800; }
+        .batch-name { font-weight: bold; font-size: 0.95rem; color: var(--primary); }
+        .batch-time { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+
+        .card-body { padding: 12px; font-size: 12.5px; line-height: 1.7; }
+        .info-row { display: flex; justify-content: space-between; }
+        .info-row span { font-weight: bold; }
+
+        .status-tag {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            z-index: 1;
+        }
+
+        .leader-detail {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+            color: #0369a1;
+            font-size: 11px;
+            min-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 彈出視窗與遮罩 */
+        #editOverlay {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+        }
+
+        #editPanel {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            width: 340px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .panel-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-body { padding: 18px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
         
-        #editOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
-        #editPanel { position: fixed; right: 20px; top: 80px; width: 360px; background: white; border-radius: 20px; z-index: 1000; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .panel-header { background: var(--primary); color: white; padding: 15px 20px; font-weight: bold; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; }
-        .panel-body { padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #475569; }
-        input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        
+        .remain-highlight {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--danger);
+        }
+
         .hidden { display: none !important; }
-        .full { border-color: var(--danger); opacity: 0.8; }
-        .full .status-tag { background: var(--danger); }
-        .full .remain-val { color: var(--danger); }
     </style>
 </head>
-<body onload="init()">
+<body>
 
 <div class="header-bar">
-    <div class="logo">📅 後慈湖管理系統 (試營運版)</div>
+    <div style="font-weight: 800; font-size: 1.2rem; color: var(--primary);">SimpleReserve</div>
     <div class="toolbar">
-        顯示梯次 <input type="number" id="batchCount" value="8" min="1" max="16" oninput="render()" style="width:45px; border:none; font-weight:bold; text-align:center;">
+        <span>開放梯次設定:</span>
+        <input type="number" id="maxBatchInput" value="16" min="1" max="16" style="width: 60px;" oninput="filterBatches()">
+        <button class="btn-primary" onclick="alert('設定已儲存')">儲存</button>
     </div>
 </div>
 
@@ -98,186 +188,210 @@
 <div id="editOverlay" onclick="closePanel()"></div>
 <div id="editPanel" class="hidden">
     <div class="panel-header">
-        <span id="panelTitle">編輯梯次資訊</span>
-        <button onclick="closePanel()" style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">&times;</button>
+        <span id="panelTitle">編輯梯次</span>
+        <button onclick="closePanel()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
     </div>
     <div class="panel-body">
         <div class="form-group">
-            <label>報到時間</label>
-            <input type="text" id="editTime">
+            <label>梯次名稱</label>
+            <input id="editName" type="text" style="width: 90%;">
         </div>
-        <div style="display: flex; gap:10px;">
-            <div class="form-group" style="flex:1;"><label>總名額</label><input type="number" id="editTotal"></div>
-            <div class="form-group" style="flex:1;"><label>已登記</label><input type="number" id="editUsed"></div>
+        <div class="form-group">
+            <label>梯次時間</label>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <input id="startH" style="width:40px; text-align:center;">:<input id="startM" style="width:40px; text-align:center;">
+                ～
+                <input id="endH" style="width:40px; text-align:center;">:<input id="endM" style="width:40px; text-align:center;">
+            </div>
         </div>
-        <div class="form-group"><label>代表人姓名</label><input type="text" id="editLeader"></div>
-        <div class="form-group"><label>聯絡電話</label><input type="text" id="editPhone"></div>
-        <button onclick="saveAndPrint()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">儲存並列印兩張 (Enter)</button>
+        <div class="form-group" style="display: flex; gap: 15px;">
+            <div>
+                <label>可報名</label>
+                <input id="editCount" type="number" style="width: 60px;" oninput="updateRemainText()">
+            </div>
+            <div>
+                <label>已報名</label>
+                <input id="editUsed" type="number" style="width: 60px;" oninput="updateRemainText()">
+            </div>
+            <div>
+                <label>可遞補</label>
+                <div id="remainText" class="remain-highlight">50</div>
+            </div>
+        </div>
+        <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+        <div class="form-group">
+            <label>領隊姓名</label>
+            <input id="leaderName" type="text" style="width: 90%;">
+        </div>
+        <div class="form-group">
+            <label>領隊電話</label>
+            <input id="leaderPhone" type="text" style="width: 90%;">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" onclick="savePanel()">確定儲存</button>
+            <button onclick="printTicket()" style="background: #64748b; color: white;">列印單據</button>
+        </div>
     </div>
 </div>
 
 <script>
-const defaultData = [
-    {id:1, name:'第一梯次', time:'08:45-09:00'}, 
-    {id:2, name:'第二梯次', time:'09:15-09:30'},
-    {id:3, name:'第三梯次', time:'09:45-10:00'},
-    {id:4, name:'第四梯次', time:'10:15-10:30'},
-    {id:5, name:'第五梯次', time:'10:45-11:00'}, 
-    {id:6, name:'第六梯次', time:'11:15-11:30'},
-    {id:7, name:'第七梯次', time:'12:45-13:00'},
-    {id:8, name:'第八梯次', time:'13:15-13:30'}
+const data = [
+    [1,'第一梯次','08:00-08:15'], [2,'第二梯次','08:20-08:35'],
+    [3,'第三梯次','08:40-08:55'], [4,'第四梯次','09:00-09:15'],
+    [5,'第五梯次','09:20-09:35'], [6,'第六梯次','09:40-09:55'],
+    [7,'第七梯次','10:00-10:15'], [8,'第八梯次','10:20-10:35'],
+    [9,'第九梯次','10:40-10:55'], [10,'第十梯次','11:00-11:15'],
+    [11,'第十一梯次','13:00-13:15'], [12,'第十二梯次','13:20-13:35'],
+    [13,'第十三梯次','13:40-13:55'], [14,'第十四梯次','14:00-14:15'],
+    [15,'第十五梯次','14:20-14:35'], [16,'第十六梯次','14:40-14:55']
 ];
 
-let items = [];
-let activeId = null;
+let currentCard = null;
+const grid = document.getElementById('grid');
 
 function init() {
-    const today = new Date().toLocaleDateString('zh-TW');
-    const savedDate = localStorage.getItem('huchihu_last_date');
-    const savedTimes = JSON.parse(localStorage.getItem('huchihu_saved_times') || '{}');
-    let savedData = JSON.parse(localStorage.getItem('huchihu_daily_data') || '[]');
-
-    if (savedDate !== today) {
-        savedData = [];
-        localStorage.setItem('huchihu_last_date', today);
-        localStorage.removeItem('huchihu_daily_data');
-    }
-
-    items = defaultData.map(d => {
-        const dayRecord = savedData.find(s => s.id === d.id) || {};
-        return {
-            ...d,
-            time: savedTimes[d.id] || d.time,
-            total: dayRecord.total || 50,
-            used: dayRecord.used || 0,
-            leader: dayRecord.leader || '',
-            phone: dayRecord.phone || ''
-        };
+    data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.no = item[0];
+        card.innerHTML = `
+            <div class="status-tag">有空位</div>
+            <div class="card-header">
+                <div class="batch-name">${item[1]}</div>
+                <div class="batch-time">${item[2]}</div>
+            </div>
+            <div class="card-body">
+                <div class="info-row">可報名：<span>50</span></div>
+                <div class="info-row">已報名：<span style="color:#2563eb">0</span></div>
+                <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補：<span>50</span></div>
+                <div class="leader-detail"></div>
+            </div>
+        `;
+        card.onclick = () => openEdit(card);
+        grid.appendChild(card);
     });
+    filterBatches();
+}
 
-    render();
-
-    window.addEventListener('keydown', e => {
-        if(e.key === 'Enter' && !document.getElementById('editPanel').classList.contains('hidden')) {
-            saveAndPrint();
+function filterBatches() {
+    const max = parseInt(document.getElementById('maxBatchInput').value) || 0;
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        if (parseInt(card.dataset.no) > max) {
+            card.classList.add('hidden');
+        } else {
+            card.classList.remove('hidden');
         }
     });
 }
 
-function render() {
-    const grid = document.getElementById('grid');
-    const limit = parseInt(document.getElementById('batchCount').value) || 8;
-    grid.innerHTML = '';
+function openEdit(card) {
+    currentCard = card;
+    document.getElementById('editPanel').classList.remove('hidden');
+    document.getElementById('editOverlay').style.display = 'block';
+
+    document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
+    document.getElementById('editName').value = card.querySelector('.batch-name').innerText;
     
-    items.slice(0, limit).forEach(d => {
-        const remain = d.total - d.used;
-        const card = document.createElement('div');
-        card.className = `card ${remain <= 0 ? 'full' : ''}`;
-        card.onclick = () => openEdit(d.id);
-        card.innerHTML = `
-            <div class="status-tag">${remain <= 0 ? '額滿' : '有位'}</div>
-            <div class="card-header">
-                <div class="batch-name">${d.name}</div>
-                <div class="batch-time">報到時間：${d.time}</div>
-            </div>
-            <div class="card-body">
-                <div class="info-row"><b>總名額</b><span>${d.total}</span></div>
-                <div class="info-row"><b>已登記</b><span>${d.used}</span></div>
-                <div class="info-row" style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
-                    <b>可遞補</b><span class="remain-val">${Math.max(0, remain)}</span>
-                </div>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
+    const time = card.querySelector('.batch-time').innerText.split('-');
+    const start = time[0].split(':');
+    const end = time[1].split(':');
+    document.getElementById('startH').value = start[0];
+    document.getElementById('startM').value = start[1];
+    document.getElementById('endH').value = end[0];
+    document.getElementById('endM').value = end[1];
+
+    const spans = card.querySelectorAll('.info-row span');
+    document.getElementById('editCount').value = spans[0].innerText;
+    document.getElementById('editUsed').value = spans[1].innerText;
+    updateRemainText();
+
+    const leaderStr = card.querySelector('.leader-detail').innerText;
+    if (leaderStr) {
+        const parts = leaderStr.replace('👤 ', '').split(' | 📞 ');
+        document.getElementById('leaderName').value = parts[0] || '';
+        document.getElementById('leaderPhone').value = parts[1] || '';
+    } else {
+        document.getElementById('leaderName').value = '';
+        document.getElementById('leaderPhone').value = '';
+    }
 }
 
-function openEdit(id) {
-    activeId = id;
-    const d = items.find(i => i.id === id);
-    document.getElementById('panelTitle').innerText = d.name;
-    document.getElementById('editTime').value = d.time;
-    document.getElementById('editTotal').value = d.total;
-    document.getElementById('editUsed').value = d.used;
-    document.getElementById('editLeader').value = d.leader;
-    document.getElementById('editPhone').value = d.phone;
-    document.getElementById('editOverlay').style.display = 'block';
-    document.getElementById('editPanel').classList.remove('hidden');
-    document.getElementById('editUsed').focus();
-    document.getElementById('editUsed').select();
+function updateRemainText() {
+    const total = parseInt(document.getElementById('editCount').value) || 0;
+    const used = parseInt(document.getElementById('editUsed').value) || 0;
+    document.getElementById('remainText').innerText = Math.max(0, total - used);
 }
 
 function closePanel() {
-    document.getElementById('editOverlay').style.display = 'none';
     document.getElementById('editPanel').classList.add('hidden');
+    document.getElementById('editOverlay').style.display = 'none';
 }
 
-function saveAndPrint() {
-    const idx = items.findIndex(i => i.id === activeId);
-    items[idx].time = document.getElementById('editTime').value;
-    items[idx].total = parseInt(document.getElementById('editTotal').value) || 0;
-    items[idx].used = parseInt(document.getElementById('editUsed').value) || 0;
-    items[idx].leader = document.getElementById('editLeader').value;
-    items[idx].phone = document.getElementById('editPhone').value;
+function savePanel() {
+    if (!currentCard) return;
 
-    const savedTimes = JSON.parse(localStorage.getItem('huchihu_saved_times') || '{}');
-    savedTimes[activeId] = items[idx].time;
-    localStorage.setItem('huchihu_saved_times', JSON.stringify(savedTimes));
-    localStorage.setItem('huchihu_daily_data', JSON.stringify(items));
+    currentCard.querySelector('.batch-name').innerText = document.getElementById('editName').value;
+    const timeText = `${document.getElementById('startH').value}:${document.getElementById('startM').value}-${document.getElementById('endH').value}:${document.getElementById('endM').value}`;
+    currentCard.querySelector('.batch-time').innerText = timeText;
 
-    // 只有人數大於 0 才列印
-    if(items[idx].used > 0) {
-        doPrint(items[idx].name, items[idx].leader, items[idx].phone, items[idx].used, items[idx].time);
-    }
+    const total = document.getElementById('editCount').value;
+    const used = document.getElementById('editUsed').value;
+    const remain = document.getElementById('remainText').innerText;
     
-    render();
+    const spans = currentCard.querySelectorAll('.info-row span');
+    spans[0].innerText = total;
+    spans[1].innerText = used;
+    spans[2].innerText = remain;
+
+    const lName = document.getElementById('leaderName').value;
+    const lPhone = document.getElementById('leaderPhone').value;
+    currentCard.querySelector('.leader-detail').innerText = lName ? `👤 ${lName} | 📞 ${lPhone}` : '';
+
+    const tag = currentCard.querySelector('.status-tag');
+    if (parseInt(remain) <= 0) {
+        tag.innerText = '已額滿';
+        tag.style.background = 'var(--danger)';
+    } else {
+        tag.innerText = '有空位';
+        tag.style.background = 'var(--success)';
+    }
+
     closePanel();
 }
 
-function doPrint(batchName, name, phone, used, time) {
-    const dateStr = new Date().toLocaleDateString('zh-TW');
-    const ticketBody = `
-        <div style="padding: 5px; border-bottom: 1px dashed #000; margin-bottom: 10px;">
-            <h2 style="text-align:center; margin: 0 0 10px 0;">後慈湖入園憑證</h2>
-            <p style="margin: 3px 0;"><b>梯次：</b>${batchName}</p>
-            <p style="margin: 3px 0;"><b>時間：</b>${time}</p>
-            <p style="margin: 3px 0;"><b>日期：</b>${dateStr}</p>
-            <p style="margin: 3px 0;"><b>人數：</b>${used} 人</p>
-            <p style="margin: 3px 0;"><b>姓名：</b>${name || '無'}</p>
-            <p style="margin: 3px 0;"><b>電話：</b>${phone || '無'}</p>
-            <p style="text-align:center; font-size: 11px; margin-top: 10px;">請保留此聯供入園查驗</p>
-        </div>
-    `;
-
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    const doc = iframe.contentWindow.document;
-
-    doc.write(`
+function printTicket() {
+    const name = document.getElementById('leaderName').value || '________';
+    const phone = document.getElementById('leaderPhone').value || '________';
+    const used = document.getElementById('editUsed').value || '0';
+    const time = `${document.getElementById('startH').value}:${document.getElementById('startM').value}-${document.getElementById('endH').value}:${document.getElementById('endM').value}`;
+    
+    const printWin = window.open('', '', 'width=400,height=600');
+    printWin.document.write(`
         <html>
         <head>
             <style>
-                @page { size: auto; margin: 0; }
-                body { font-family: "Microsoft JhengHei", sans-serif; width: 58mm; margin: 0; padding: 2mm; }
-                p { font-size: 14px; }
+                body { font-family: sans-serif; width: 58mm; padding: 10px; }
+                .t { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                table { width: 100%; border-collapse: collapse; }
+                td { border: 1px solid #000; padding: 5px; font-size: 14px; }
             </style>
         </head>
-        <body>
-            ${ticketBody}
-            <div style="page-break-after: always;"></div>
-            ${ticketBody}
+        <body onload="window.print(); window.close();">
+            <div class="t"><h2>後慈湖預約單</h2></div>
+            <table>
+                <tr><td>時間</td><td>${time}</td></tr>
+                <tr><td>姓名</td><td>${name}</td></tr>
+                <tr><td>電話</td><td>${phone}</td></tr>
+                <tr><td>人數</td><td>${used} 人</td></tr>
+            </table>
         </body>
         </html>
     `);
-    doc.close();
-
-    setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        setTimeout(() => document.body.removeChild(iframe), 1000);
-    }, 500);
+    printWin.document.close();
 }
+
+init();
 </script>
 </body>
 </html>
