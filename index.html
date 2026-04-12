@@ -84,12 +84,12 @@
         .full .remain-val { color: var(--danger); }
     </style>
 </head>
-<body>
+<body onload="init()">
 
 <div class="header-bar">
     <div class="logo">📅 後慈湖管理系統 (試營運版)</div>
     <div class="toolbar">
-        顯示梯次 <input type="number" id="batchCount" value="4" min="1" max="16" oninput="render()" style="width:45px; border:none; font-weight:bold; text-align:center;">
+        顯示梯次 <input type="number" id="batchCount" value="8" min="1" max="16" oninput="render()" style="width:45px; border:none; font-weight:bold; text-align:center;">
     </div>
 </div>
 
@@ -117,15 +117,14 @@
 </div>
 
 <script>
-// 依據圖片資訊設定試營運梯次
 const defaultData = [
     {id:1, name:'第一梯次', time:'08:45-09:00'}, 
-    {id:3, name:'第三梯次', time:'09:45-10:00'},
-    {id:5, name:'第五梯次', time:'10:45-11:00'}, 
-    {id:7, name:'第七梯次', time:'12:45-13:00'},
     {id:2, name:'第二梯次', time:'09:15-09:30'},
+    {id:3, name:'第三梯次', time:'09:45-10:00'},
     {id:4, name:'第四梯次', time:'10:15-10:30'},
+    {id:5, name:'第五梯次', time:'10:45-11:00'}, 
     {id:6, name:'第六梯次', time:'11:15-11:30'},
+    {id:7, name:'第七梯次', time:'12:45-13:00'},
     {id:8, name:'第八梯次', time:'13:15-13:30'}
 ];
 
@@ -159,13 +158,15 @@ function init() {
     render();
 
     window.addEventListener('keydown', e => {
-        if(e.key === 'Enter' && !document.getElementById('editPanel').classList.contains('hidden')) saveAndPrint();
+        if(e.key === 'Enter' && !document.getElementById('editPanel').classList.contains('hidden')) {
+            saveAndPrint();
+        }
     });
 }
 
 function render() {
     const grid = document.getElementById('grid');
-    const limit = parseInt(document.getElementById('batchCount').value) || 4;
+    const limit = parseInt(document.getElementById('batchCount').value) || 8;
     grid.innerHTML = '';
     
     items.slice(0, limit).forEach(d => {
@@ -203,6 +204,7 @@ function openEdit(id) {
     document.getElementById('editOverlay').style.display = 'block';
     document.getElementById('editPanel').classList.remove('hidden');
     document.getElementById('editUsed').focus();
+    document.getElementById('editUsed').select();
 }
 
 function closePanel() {
@@ -213,7 +215,7 @@ function closePanel() {
 function saveAndPrint() {
     const idx = items.findIndex(i => i.id === activeId);
     items[idx].time = document.getElementById('editTime').value;
-    items[idx].total = parseInt(document.getElementById('editTotal').value) || 50;
+    items[idx].total = parseInt(document.getElementById('editTotal').value) || 0;
     items[idx].used = parseInt(document.getElementById('editUsed').value) || 0;
     items[idx].leader = document.getElementById('editLeader').value;
     items[idx].phone = document.getElementById('editPhone').value;
@@ -223,22 +225,59 @@ function saveAndPrint() {
     localStorage.setItem('huchihu_saved_times', JSON.stringify(savedTimes));
     localStorage.setItem('huchihu_daily_data', JSON.stringify(items));
 
+    // 只有人數大於 0 才列印
     if(items[idx].used > 0) {
-        doPrint(items[idx].leader, items[idx].phone, items[idx].used, items[idx].time);
+        doPrint(items[idx].name, items[idx].leader, items[idx].phone, items[idx].used, items[idx].time);
     }
     
     render();
     closePanel();
 }
 
-function doPrint(name, phone, used, time) {
-    const win = window.open('', '_blank', 'width=450,height=800');
-    if (!win) {
-        alert('列印視窗被攔截！請點擊網址列右側允許彈出視窗。');
-        return;
-    }
-    
+function doPrint(batchName, name, phone, used, time) {
     const dateStr = new Date().toLocaleDateString('zh-TW');
-    
-    // 生成單張內容的函式
-    const getTicketHtml
+    const ticketBody = `
+        <div style="padding: 5px; border-bottom: 1px dashed #000; margin-bottom: 10px;">
+            <h2 style="text-align:center; margin: 0 0 10px 0;">後慈湖入園憑證</h2>
+            <p style="margin: 3px 0;"><b>梯次：</b>${batchName}</p>
+            <p style="margin: 3px 0;"><b>時間：</b>${time}</p>
+            <p style="margin: 3px 0;"><b>日期：</b>${dateStr}</p>
+            <p style="margin: 3px 0;"><b>人數：</b>${used} 人</p>
+            <p style="margin: 3px 0;"><b>姓名：</b>${name || '無'}</p>
+            <p style="margin: 3px 0;"><b>電話：</b>${phone || '無'}</p>
+            <p style="text-align:center; font-size: 11px; margin-top: 10px;">請保留此聯供入園查驗</p>
+        </div>
+    `;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+
+    doc.write(`
+        <html>
+        <head>
+            <style>
+                @page { size: auto; margin: 0; }
+                body { font-family: "Microsoft JhengHei", sans-serif; width: 58mm; margin: 0; padding: 2mm; }
+                p { font-size: 14px; }
+            </style>
+        </head>
+        <body>
+            ${ticketBody}
+            <div style="page-break-after: always;"></div>
+            ${ticketBody}
+        </body>
+        </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 500);
+}
+</script>
+</body>
+</html>
