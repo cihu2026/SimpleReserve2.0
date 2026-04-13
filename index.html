@@ -199,17 +199,34 @@
 </div>
 
 <script>
-const batchInfo = [
-    {id: 1, time: '08:45-09:00', trial: true},
-    {id: 2, time: '09:15-09:30', trial: false},
-    {id: 3, time: '09:45-10:00', trial: true},
-    {id: 4, time: '10:15-10:30', trial: false},
-    {id: 5, time: '10:45-11:00', trial: true},
-    {id: 6, time: '11:15-11:30', trial: false},
-    {id: 7, time: '12:45-13:00', trial: true},
-    {id: 8, time: '13:15-13:30', trial: false}
+const defaultBatchInfo = [
+    { id: 1, time: '08:45-09:00', enabled: true },
+    { id: 2, time: '09:15-09:30', enabled: true },
+    { id: 3, time: '09:45-10:00', enabled: true },
+    { id: 4, time: '10:15-10:30', enabled: true },
+    { id: 5, time: '10:45-11:00', enabled: true },
+    { id: 6, time: '11:15-11:30', enabled: true },
+    { id: 7, time: '12:45-13:00', enabled: true },
+    { id: 8, time: '13:15-13:30', enabled: true }
 ];
 
+/* 載入已儲存的梯次設定 */
+let batchInfo = JSON.parse(localStorage.getItem('batch_settings'));
+
+if (!batchInfo) {
+    batchInfo = defaultBatchInfo;
+
+    // 第2梯關閉
+    batchInfo[1].enabled = false;
+
+    // 第4梯關閉
+    batchInfo[3].enabled = false;
+
+    // 第6梯改時間
+    batchInfo[5].time = '11:30-11:45';
+
+    localStorage.setItem('batch_settings', JSON.stringify(batchInfo));
+}
 let currentCard = null;
 const MAX_CAPACITY = 50;
 
@@ -219,19 +236,27 @@ function isTrialPeriod(date) {
     return date >= start && date <= end;
 }
 
-function init() {
+function init() {    
     const now = new Date();
     document.getElementById('currentDateDisplay').innerText = now.toLocaleDateString('zh-TW');
     
-    const trial = isTrialPeriod(now);
-    if(trial) document.getElementById('trialBadge').classList.remove('hidden');
+    document.getElementById('trialBadge').classList.add('hidden');
 
-    const dailyRecords = JSON.parse(localStorage.getItem('daily_records_' + now.toDateString()) || '{}');
+    const todayKey = 'daily_records_' + now.toDateString();
+
+/* 自動刪除前幾天資料，只留今天 */
+Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('daily_records_') && key !== todayKey) {
+        localStorage.removeItem(key);
+    }
+});
+
+    const dailyRecords = JSON.parse(localStorage.getItem(todayKey) || '{}');
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
 
     batchInfo.forEach(batch => {
-        const isOpen = !trial || batch.trial; 
+        const isOpen = batch.enabled;
         const record = dailyRecords[batch.id] || { used: 0, leader: '', phone: '' };
         const remain = MAX_CAPACITY - record.used;
 
