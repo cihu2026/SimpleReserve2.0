@@ -157,8 +157,7 @@
 <body>
 
 <div class="header-bar">
-    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 SimpleReserve2.0
-</div>
+    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 後慈湖管理</div>
     <div class="toolbar">
         <span>梯次:</span>
         <input type="number" id="maxBatchInput" value="16" min="1" max="16" style="width: 50px;" oninput="saveConfig()">
@@ -354,8 +353,8 @@ function printTicket(time, name, phone, used) {
     const ticketHtml = (type) => `
         <div style="padding: 10px; text-align: center; font-family: sans-serif;">
             <div style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
-                <h2 style="margin:5px 0;">後慈湖預約單 (${type})</h2>
-                <p style="margin:0; font-size:12px;">(現場遞補)</p>
+                <h2 style="margin:5px 0;">後慈湖預約單 (${type})</h2><br>
+                <p style="margin:0; font-size:12px;">現場遞補</p>
             </div>
             <table style="width: 100%; border-collapse: collapse; font-weight: bold; font-size: 14px;">
                 <tr><td style="border:1px solid #000; padding:6px; background:#eee; width:30%;">日期</td><td style="border:1px solid #000; padding:6px; text-align:left;">${dateStr}</td></tr>
@@ -364,14 +363,16 @@ function printTicket(time, name, phone, used) {
                 <tr><td style="border:1px solid #000; padding:6px; background:#eee;">電話</td><td style="border:1px solid #000; padding:6px; text-align:left;">${phone || '________'}</td></tr>
                 <tr><td style="border:1px solid #000; padding:6px; background:#eee;">人數</td><td style="border:1px solid #000; padding:6px; text-align:left;">${used} 人</td></tr>
             </table>
-            <div style="font-size: 10px; text-align: left; margin-top: 10px;">1.代表請收集證件。 2.電話：03-3889554</div>
-        </div>
+            <div style="font-size: 10px; text-align: left; margin-top: 10px;">
+            1. 如有符合入園相關優惠者,一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
+            2. 導覽服務站電話：03-3889554。<br></div>
     `;
 
     printWin.document.write(`
-        <body onload="setTimeout(function(){ window.print(); window.close(); }, 300);">
+        <html>
+        <body style="width: 58mm; margin:0;" onload="window.print(); window.close();">
             ${ticketHtml('遊客執據')}
-            <div style="width: 58mm; border-top: 1.5px dashed #000; margin: 25px 0;"></div>
+            <div style="border-top: 1px dashed #000; margin: 15px 0;"></div>
             ${ticketHtml('站端留存')}
         </body></html>
     `);
