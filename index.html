@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SimpleReserve Pro | 手機管理版</title>
+    <title>後慈湖管理系統 | 試營運同步版</title>
     <style>
         :root {
             --primary: #2563eb;
             --danger: #ef4444;
             --success: #22c55e;
             --secondary: #64748b;
+            --disabled: #e2e8f0;
             --bg: #f1f5f9;
             --card-bg: #ffffff;
             --text: #1e293b;
@@ -35,30 +36,14 @@
             z-index: 100;
         }
 
-        .toolbar { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-
-        input[type="number"], input[type="text"] {
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            outline: none;
-            font-size: 16px;
+        .trial-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: bold;
         }
-
-        button {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
-            transition: opacity 0.2s;
-        }
-
-        button:active { opacity: 0.7; }
-
-        .btn-print { background: var(--primary); color: white; flex: 2; }
-        .btn-cancel { background: var(--secondary); color: white; flex: 1; }
 
         .grid {
             display: grid;
@@ -77,6 +62,12 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: relative;
             border: 1px solid #e2e8f0;
+        }
+
+        .card.locked {
+            background: var(--disabled);
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .card-header {
@@ -109,6 +100,7 @@
             border-top: 1px dashed #e2e8f0;
             color: #0369a1;
             font-size: 12px;
+            min-height: 20px;
         }
 
         #editOverlay {
@@ -145,6 +137,19 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 6px; }
         
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 10px; }
+        .btn-print { background: var(--primary); color: white; flex: 2; }
+        .btn-cancel { background: var(--secondary); color: white; flex: 1; }
+
         .remain-highlight {
             font-size: 24px;
             font-weight: bold;
@@ -157,10 +162,12 @@
 <body>
 
 <div class="header-bar">
-    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 後慈湖管理</div>
-    <div class="toolbar">
-        <span>梯次:</span>
-        <input type="number" id="maxBatchInput" value="16" min="1" max="16" style="width: 50px;" oninput="saveConfig()">
+    <div style="display: flex; flex-direction: column;">
+        <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 SimpleReserve2.0</span>
+        <div id="trialBadge" class="trial-status hidden">試營運模式 (1,3,5,7梯)</div>
+    </div>
+    <div style="font-size: 12px; text-align: right;">
+        上限: <input type="number" id="maxBatchInput" value="8" min="1" max="16" style="width: 40px; padding:2px;" oninput="saveConfig()">
     </div>
 </div>
 
@@ -168,40 +175,31 @@
 
 <div id="editOverlay" onclick="closePanel()"></div>
 <div id="editPanel" class="hidden">
-    <div class="panel-header" id="panelTitle">編輯梯次</div>
+    <div class="panel-header" id="panelTitle">編輯預約</div>
     <div class="panel-body">
-        <div class="form-group">
-            <label>報到時間</label>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <input id="startH" type="number" style="width:100%; text-align:center;">:
-                <input id="startM" type="number" style="width:100%; text-align:center;">
-                ～
-                <input id="endH" type="number" style="width:100%; text-align:center;">:
-                <input id="endM" type="number" style="width:100%; text-align:center;">
-            </div>
-        </div>
-        <div class="form-group" style="display: flex; gap: 15px;">
+        <div class="form-group" style="display: flex; gap: 10px;">
             <div style="flex:1">
                 <label>可報名</label>
-                <input id="editCount" type="number" style="width: 100%;" oninput="updateRemainText()">
+                <input id="editCount" type="number" value="50" oninput="updateRemainText()">
             </div>
             <div style="flex:1">
                 <label>已報名</label>
-                <input id="editUsed" type="number" style="width: 100%;" oninput="updateRemainText()">
+                <input id="editUsed" type="number" oninput="updateRemainText()">
             </div>
-            <div style="flex:1; text-align:center;">
+            <div style="flex:0.8; text-align:center;">
                 <label>遞補</label>
                 <div id="remainText" class="remain-highlight">0</div>
             </div>
         </div>
         <div class="form-group">
-            <label>領隊資訊</label>
-            <div style="display:flex; flex-direction: column; gap:8px;">
-                <input id="leaderName" type="text" placeholder="姓名">
-                <input id="leaderPhone" type="text" placeholder="電話">
-            </div>
+            <label>領隊姓名</label>
+            <input id="leaderName" type="text" placeholder="輸入姓名">
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <div class="form-group">
+            <label>領隊電話</label>
+            <input id="leaderPhone" type="text" placeholder="輸入電話">
+        </div>
+        <div class="btn-group">
             <button class="btn-cancel" onclick="closePanel()">取消</button>
             <button class="btn-print" onclick="saveAndPrint()">確定列印</button>
         </div>
@@ -209,63 +207,75 @@
 </div>
 
 <script>
-const defaultData = [
-    [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'],
-    [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
-    [5,'第五梯次','10:45-11:00'], [6,'第六梯次','11:15-11:30'],
-    [7,'第七梯次','12:45-13:00'], [8,'第八梯次','13:15-13:30'],
-    [9,'第九梯次','13:45-14:00'], [10,'第十梯次','14:15-14:30'],
-    [11,'第十一梯次','14:45-15:00'], [12,'第十二梯次','15:15-15:30'],
-    [13,'第十三梯次','15:45-16:00'], [14,'第十四梯次','16:15-16:30'],
-    [15,'第十五梯次','16:45-17:00'], [16,'第十六梯次','17:15-17:30']
+// 公告梯次時間
+const batchTimes = [
+    [1,'08:45-09:00', true], [2,'09:15-09:30', false],
+    [3,'09:45-10:00', true], [4,'10:15-10:30', false],
+    [5,'10:45-11:00', true], [6,'11:15-11:30', false],
+    [7,'12:45-13:00', true], [8,'13:15-13:30', false]
 ];
 
 let currentCard = null;
 
+// 判斷是否為試營運期間 (115/4/22 - 115/5/9)
+function isTrial() {
+    const now = new Date();
+    const start = new Date(2026, 3, 22); // 月份從0開始
+    const end = new Date(2026, 4, 9);
+    return now >= start && now <= end;
+}
+
 function init() {
     const today = new Date().toLocaleDateString('zh-TW');
+    const trialMode = isTrial();
+    
+    if (trialMode) document.getElementById('trialBadge').classList.remove('hidden');
     if (localStorage.getItem('last_open_date') !== today) {
         localStorage.setItem('daily_records', '{}');
         localStorage.setItem('last_open_date', today);
     }
-    const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
+
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    const savedMax = localStorage.getItem('max_batch_count') || 16;
+    const savedMax = localStorage.getItem('max_batch_count') || 8;
     document.getElementById('maxBatchInput').value = savedMax;
 
     const grid = document.getElementById('grid');
     grid.innerHTML = ''; 
 
-    defaultData.forEach(item => {
+    batchTimes.forEach(item => {
         const id = item[0];
+        const isAvailable = !trialMode || item[2]; // 試營運期只開1,3,5,7
         const record = dailyRecords[id] || { used: 0, total: 50, leader: '', phone: '' };
-        const time = savedTimes[id] || item[2];
         const remain = record.total - record.used;
 
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = `card ${!isAvailable ? 'locked' : ''}`;
         card.dataset.no = id;
+        card.dataset.time = item[1];
+        
         card.innerHTML = `
-            <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已額滿' : '有空位'}</div>
+            <div class="status-tag" style="background:${!isAvailable ? '#64748b' : (remain <= 0 ? 'var(--danger)' : 'var(--success)')}">
+                ${!isAvailable ? '暫不開放' : (remain <= 0 ? '已額滿' : '有空位')}
+            </div>
             <div class="card-header">
-                <div class="batch-name">${item[1]}</div>
-                <div class="batch-time">${time}</div>
+                <div class="batch-name">第 ${id} 梯次</div>
+                <div class="batch-time">報到 ${item[1]}</div>
             </div>
             <div class="card-body">
-                <div class="info-row">可報名：<span>${record.total}</span></div>
-                <div class="info-row">已報名：<span style="color:#2563eb">${record.used}</span></div>
+                <div class="info-row">限制人數：<span>${record.total}</span></div>
+                <div class="info-row">現場預約：<span style="color:var(--primary)">${record.used}</span></div>
                 <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補：<span>${Math.max(0, remain)}</span></div>
-                <div class="leader-detail">${record.leader ? `👤 ${record.leader} | 📞 ${record.phone}` : ''}</div>
+                <div class="leader-detail">${record.leader ? `👤 ${record.leader}` : ''}</div>
             </div>
         `;
-        card.onclick = () => openEdit(card);
+        if (isAvailable) card.onclick = () => openEdit(card);
         grid.appendChild(card);
     });
     filterBatches();
 }
 
 function filterBatches() {
-    const max = parseInt(document.getElementById('maxBatchInput').value) || 0;
+    const max = parseInt(document.getElementById('maxBatchInput').value) || 8;
     document.querySelectorAll('.card').forEach(card => card.classList.toggle('hidden', parseInt(card.dataset.no) > max));
 }
 
@@ -276,32 +286,18 @@ function saveConfig() {
 
 function openEdit(card) {
     currentCard = card;
-    document.getElementById('editPanel').classList.remove('hidden');
     document.getElementById('editOverlay').style.display = 'block';
-    document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
+    document.getElementById('editPanel').classList.remove('hidden');
+    document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText + ' 預約';
     
-    const time = card.querySelector('.batch-time').innerText.split('-');
-    const start = time[0].split(':');
-    const end = time[1].split(':');
-    document.getElementById('startH').value = parseInt(start[0]);
-    document.getElementById('startM').value = parseInt(start[1]);
-    document.getElementById('endH').value = parseInt(end[0]);
-    document.getElementById('endM').value = parseInt(end[1]);
-
     const spans = card.querySelectorAll('.info-row span');
     document.getElementById('editCount').value = spans[0].innerText;
     document.getElementById('editUsed').value = spans[1].innerText;
+    
+    const leaderText = card.querySelector('.leader-detail').innerText.replace('👤 ', '');
+    document.getElementById('leaderName').value = leaderText;
+    document.getElementById('leaderPhone').value = ""; // 電話通常不顯示在卡片上保護隱私
     updateRemainText();
-
-    const leaderStr = card.querySelector('.leader-detail').innerText;
-    if (leaderStr) {
-        const parts = leaderStr.replace('👤 ', '').split(' | 📞 ');
-        document.getElementById('leaderName').value = parts[0] || '';
-        document.getElementById('leaderPhone').value = parts[1] || '';
-    } else {
-        document.getElementById('leaderName').value = '';
-        document.getElementById('leaderPhone').value = '';
-    }
 }
 
 function updateRemainText() {
@@ -316,98 +312,66 @@ function closePanel() {
 }
 
 function saveAndPrint() {
-    if (!currentCard) return;
     const id = currentCard.dataset.no;
-
-    const h1 = document.getElementById('startH').value.toString().padStart(2, '0');
-    const m1 = document.getElementById('startM').value.toString().padStart(2, '0');
-    const h2 = document.getElementById('endH').value.toString().padStart(2, '0');
-    const m2 = document.getElementById('endM').value.toString().padStart(2, '0');
-    const timeText = `${h1}:${m1}-${h2}:${m2}`;
-    
+    const time = currentCard.dataset.time;
     const total = document.getElementById('editCount').value;
     const used = document.getElementById('editUsed').value;
     const lName = document.getElementById('leaderName').value;
     const lPhone = document.getElementById('leaderPhone').value;
 
-    // 1. 儲存數據
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
     dailyRecords[id] = { total, used, leader: lName, phone: lPhone };
     localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
 
-    const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
-    savedTimes[id] = timeText;
-    localStorage.setItem('batch_times', JSON.stringify(savedTimes));
-
-    // 2. 執行列印
-    printTicket(timeText, lName, lPhone, used);
-
-    // 3. 更新 UI 並關閉
+    printTicket(id, time, lName, lPhone, used);
     init();
     closePanel();
 }
 
 function printTicket(id, time, name, phone, used) {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('zh-TW'); // 格式如 2026/4/13
+    const dateStr = new Date().toLocaleDateString('zh-TW');
     const printWin = window.open('', '', 'width=450,height=800');
     
     const ticketHtml = (type) => `
         <div style="width: 54mm; padding: 2mm; font-family: 'Microsoft JhengHei', sans-serif; text-align: center; color: #000;">
-            <h1 style="margin: 5px 0 0 0; font-size: 22px; font-weight: 900;">後慈湖預約單</h1>
+            <h1 style="margin: 5px 0; font-size: 22px; font-weight: 900;">後慈湖預約單</h1>
             <h1 style="margin: 0 0 10px 0; font-size: 22px; font-weight: 900;">(${type})</h1>
-            
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 5px;">現場遞補</div>
-            <div style="border-top: 2px solid #000; margin-bottom: 10px;"></div>
+            <div style="border-top: 2.5px solid #000; margin-bottom: 10px;"></div>
             
             <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #000; font-size: 16px;">
-                <tr>
-                    <td style="border: 1.5px solid #000; padding: 8px; width: 25%; font-weight: 900; background: #f0f0f0;">日期</td>
-                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${dateStr}</td>
-                </tr>
-                <tr>
-                    <td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #f0f0f0;">時間</td>
-                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${time}</td>
-                </tr>
-                <tr>
-                    <td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #f0f0f0;">姓名</td>
-                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${name || '__________'}</td>
-                </tr>
-                <tr>
-                    <td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #f0f0f0;">電話</td>
-                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${phone || '__________'}</td>
-                </tr>
-                <tr>
-                    <td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #f0f0f0;">人數</td>
-                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${used} 人</td>
-                </tr>
+                <tr><td style="border: 1.5px solid #000; padding: 8px; width: 30%; font-weight: 900; background: #eee;">日期</td>
+                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${dateStr}</td></tr>
+                <tr><td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #eee;">時間</td>
+                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${time}</td></tr>
+                <tr><td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #eee;">姓名</td>
+                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${name || '__________'}</td></tr>
+                <tr><td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #eee;">電話</td>
+                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${phone || '__________'}</td></tr>
+                <tr><td style="border: 1.5px solid #000; padding: 8px; font-weight: 900; background: #eee;">人數</td>
+                    <td style="border: 1.5px solid #000; padding: 8px; text-align: left; font-weight: 900;">${used} 人</td></tr>
             </table>
 
-            <div style="text-align: left; font-size: 11px; margin-top: 10px; line-height: 1.5; font-weight: bold;">
+            <div style="text-align: left; font-size: 11px; margin-top: 12px; line-height: 1.6; font-weight: bold;">
                 1. 如有符合入園相關優惠者,一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
-                2. 導覽服務站電話：<span style="text-decoration: underline;">03-3889554</span>。<br>
-                <span style="color: #000;">※ 入園調整為「前進前出」模式。</span>
+                2. 導覽服務站電話：<u>03-3889554</u>。<br>
+                <div style="margin-top:5px; border:1px solid #000; padding:2px; text-align:center;">※ 入園方式調整為「前進前出」</div>
             </div>
         </div>
     `;
 
     printWin.document.write(`
-        <html>
-        <head>
-            <title>Print Ticket</title>
-            <style>
-                body { margin: 0; padding: 0; }
-                @media print {
-                    @page { margin: 0; size: auto; }
-                }
-            </style>
-        </head>
-        <body onload="window.print(); window.close();">
+        <html><head><style>body{margin:0;padding:0;} @media print{@page{margin:0;}}</style></head>
+        <body onload="window.print();window.close();">
             ${ticketHtml('遊客執據')}
-            <div style="width: 58mm; border-top: 1.5px dashed #000; margin: 20px 0;"></div>
+            <div style="width: 58mm; border-top: 1.5px dashed #000; margin: 25px 0;"></div>
             ${ticketHtml('站端留存')}
-        </body>
-        </html>
+        </body></html>
     `);
     printWin.document.close();
 }
+
+init();
+</script>
+</body>
+</html>
