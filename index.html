@@ -220,8 +220,8 @@ let currentCard = null;
 // 判斷是否為試營運期間 (115/4/22 - 115/5/9)
 function isTrial() {
     const now = new Date();
-    const start = new Date(2026, 3, 22); // 月份從0開始
-    const end = new Date(2026, 4, 9);
+    const start = new Date(2026, 4, 13); // 月份從0開始
+    const end = new Date(2026, 5, 10);
     return now >= start && now <= end;
 }
 
