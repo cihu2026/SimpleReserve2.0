@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SimpleReserve Pro | 手機管理版</title>
+    <title>SimpleReserve 2.0 | 後慈湖管理</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -69,7 +69,6 @@
         }
 
         @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
         .card {
             background: var(--card-bg);
@@ -88,8 +87,8 @@
             border-bottom: 1px solid #e2e8f0;
         }
 
-        .batch-name { font-weight: bold; font-size: 1rem; color: var(--primary); }
-        .batch-time { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
+        .batch-name { font-weight: bold; font-size: 1.1rem; color: var(--primary); }
+        .batch-time { font-size: 0.9rem; color: #64748b; margin-top: 4px; }
 
         .card-body { padding: 12px; font-size: 14px; line-height: 1.8; }
         .info-row { display: flex; justify-content: space-between; }
@@ -97,12 +96,13 @@
 
         .status-tag {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
+            top: 10px;
+            right: 10px;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
             color: white;
+            font-weight: bold;
         }
 
         .leader-detail {
@@ -128,7 +128,7 @@
             top: 50%;
             transform: translate(-50%, -50%);
             width: 90%;
-            max-width: 360px;
+            max-width: 380px;
             background: white;
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
@@ -142,6 +142,7 @@
             padding: 16px;
             text-align: center;
             font-weight: bold;
+            font-size: 1.2rem;
         }
 
         .panel-body { padding: 20px; }
@@ -149,7 +150,7 @@
         .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 6px; }
         
         .remain-highlight {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: var(--danger);
         }
@@ -160,10 +161,10 @@
 <body>
 
 <div class="header-bar">
-    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 SimpleReserve2.0</div>
+    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 SimpleReserve 2.0</div>
     <div class="toolbar">
-        <span>顯示梯次:</span>
-        <input type="number" id="maxBatchInput" value="16" min="1" max="16" style="width: 50px;" oninput="saveConfig()">
+        <span>梯次:</span>
+        <input type="number" id="maxBatchInput" value="8" min="1" max="16" style="width: 50px;" oninput="saveConfig()">
     </div>
 </div>
 
@@ -174,8 +175,14 @@
     <div class="panel-header" id="panelTitle">編輯梯次</div>
     <div class="panel-body">
         <div class="form-group">
-            <label>報到時間段 (例如 08:45-09:00)</label>
-            <input id="editTimeRange" type="text" style="width:100%;">
+            <label>報到時間</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input id="startH" type="number" style="width:100%; text-align:center;">:
+                <input id="startM" type="number" style="width:100%; text-align:center;">
+                <span style="color:#64748b">～</span>
+                <input id="endH" type="number" style="width:100%; text-align:center;">:
+                <input id="endM" type="number" style="width:100%; text-align:center;">
+            </div>
         </div>
         <div class="form-group" style="display: flex; gap: 15px;">
             <div style="flex:1">
@@ -187,7 +194,7 @@
                 <input id="editUsed" type="number" style="width: 100%;" oninput="updateRemainText()">
             </div>
             <div style="flex:1; text-align:center;">
-                <label>可遞補</label>
+                <label>遞補</label>
                 <div id="remainText" class="remain-highlight">0</div>
             </div>
         </div>
@@ -206,6 +213,7 @@
 </div>
 
 <script>
+// 初始化梯次數據
 const defaultData = [
     [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'],
     [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
@@ -221,13 +229,15 @@ let currentCard = null;
 
 function init() {
     const today = new Date().toLocaleDateString('zh-TW');
+    // 跨日自動清除記錄
     if (localStorage.getItem('last_open_date') !== today) {
         localStorage.setItem('daily_records', '{}');
         localStorage.setItem('last_open_date', today);
     }
+    
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    const savedMax = localStorage.getItem('max_batch_count') || 16;
+    const savedMax = localStorage.getItem('max_batch_count') || 8;
     document.getElementById('maxBatchInput').value = savedMax;
 
     const grid = document.getElementById('grid');
@@ -243,7 +253,7 @@ function init() {
         card.className = 'card';
         card.dataset.no = id;
         card.innerHTML = `
-            <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已額滿' : '有空位'}</div>
+            <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已滿額' : '有空位'}</div>
             <div class="card-header">
                 <div class="batch-name">${item[1]}</div>
                 <div class="batch-time">${time}</div>
@@ -277,7 +287,14 @@ function openEdit(card) {
     document.getElementById('editOverlay').style.display = 'block';
     document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
     
-    document.getElementById('editTimeRange').value = card.querySelector('.batch-time').innerText;
+    // 解析時間
+    const time = card.querySelector('.batch-time').innerText.split('-');
+    const start = time[0].split(':');
+    const end = time[1].split(':');
+    document.getElementById('startH').value = parseInt(start[0]);
+    document.getElementById('startM').value = parseInt(start[1]);
+    document.getElementById('endH').value = parseInt(end[0]);
+    document.getElementById('endM').value = parseInt(end[1]);
 
     const spans = card.querySelectorAll('.info-row span');
     document.getElementById('editCount').value = spans[0].innerText;
@@ -309,12 +326,19 @@ function closePanel() {
 function saveAndPrint() {
     if (!currentCard) return;
     const id = currentCard.dataset.no;
-    const timeText = document.getElementById('editTimeRange').value;
+
+    const h1 = document.getElementById('startH').value.toString().padStart(2, '0');
+    const m1 = document.getElementById('startM').value.toString().padStart(2, '0');
+    const h2 = document.getElementById('endH').value.toString().padStart(2, '0');
+    const m2 = document.getElementById('endM').value.toString().padStart(2, '0');
+    const timeText = `${h1}:${m1}-${h2}:${m2}`;
+    
     const total = document.getElementById('editCount').value;
     const used = document.getElementById('editUsed').value;
     const lName = document.getElementById('leaderName').value;
     const lPhone = document.getElementById('leaderPhone').value;
 
+    // 儲存至資料庫
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
     dailyRecords[id] = { total, used, leader: lName, phone: lPhone };
     localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
@@ -323,6 +347,7 @@ function saveAndPrint() {
     savedTimes[id] = timeText;
     localStorage.setItem('batch_times', JSON.stringify(savedTimes));
 
+    // 呼叫列印
     printTicket(timeText, lName, lPhone, used);
     init();
     closePanel();
@@ -333,35 +358,58 @@ function printTicket(time, name, phone, used) {
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     const printWin = window.open('', '', 'width=450,height=800');
     
+    // 預約單模板 (完全參考上傳圖片樣板)
     const ticketHtml = (type) => `
-        <div style="width: 75mm; margin: 0 auto; font-family: sans-serif; padding: 5px; text-align: center; color: #000;">
-            <h1 style="font-size: 24px; margin: 0;">後慈湖預約單</h1>
-            <h2 style="font-size: 20px; margin: 5px 0;">(${type})</h2>
-            <p style="font-size: 14px; font-weight: bold; margin: 5px 0;">現場遞補</p>
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 16px; text-align: left;">
-                <tr><th style="border:1px solid black; padding:8px; width:30%; background:#eee; text-align:center;">日期</th><td style="border:1px solid black; padding:8px; font-weight:bold;">${dateStr}</td></tr>
-                <tr><th style="border:1px solid black; padding:8px; background:#eee; text-align:center;">時間</th><td style="border:1px solid black; padding:8px; font-weight:bold;">${time}</td></tr>
-                <tr><th style="border:1px solid black; padding:8px; background:#eee; text-align:center;">姓名</th><td style="border:1px solid black; padding:8px;">${name || '________'}</td></tr>
-                <tr><th style="border:1px solid black; padding:8px; background:#eee; text-align:center;">電話</th><td style="border:1px solid black; padding:8px;">${phone || '________'}</td></tr>
-                <tr><th style="border:1px solid black; padding:8px; background:#eee; text-align:center;">人數</th><td style="border:1px solid black; padding:8px; font-weight:bold;">${used} 人</td></tr>
+        <div style="width: 80mm; margin: 0 auto; font-family: 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
+            <h1 style="font-size: 28px; margin: 0;">後慈湖預約單</h1>
+            <h2 style="font-size: 24px; margin: 5px 0 15px 0;">(${type})</h2>
+            
+            <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">現場遞補</p>
+            
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; width: 30%; background-color: #f2f2f2; text-align: center;">日期</th>
+                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${dateStr}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">時間</th>
+                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${time}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">姓名</th>
+                    <td style="border: 1px solid black; padding: 12px 10px;">${name || '__________'}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">電話</th>
+                    <td style="border: 1px solid black; padding: 12px 10px;">${phone || '__________'}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">人數</th>
+                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${used} 人</td>
+                </tr>
             </table>
-            <div style="font-size: 11px; text-align: left; margin-top: 10px; line-height: 1.4;">
-                1. 符合優惠者請代表收集證件(身分證、志工卡、身障手冊等)。<br>
-                2. 導覽服務站電話：03-3889554。
+
+            <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
+                1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
+                2. 導覽服務站電話：<span style="color: blue; text-decoration: underline;">03-3889554</span>。
             </div>
         </div>
     `;
 
     printWin.document.write(`
-        <html><body style="margin:0;" onload="window.print(); window.close();">
-            ${ticketHtml('遊客執據')}
-            <div style="border-top: 1px dashed #000; margin: 20px 0; width: 100%;"></div>
-            ${ticketHtml('站端留存')}
-        </body></html>
+        <html>
+            <head><title>後慈湖列印單</title></head>
+            <body style="margin:0;" onload="window.print(); setTimeout(() => window.close(), 500);">
+                ${ticketHtml('遊客執據')}
+                <div style="border-top: 2px dashed #000; margin: 30px 0; width: 100%;"></div>
+                ${ticketHtml('站端留存')}
+            </body>
+        </html>
     `);
     printWin.document.close();
 }
 
+// 啟動程序
 init();
 </script>
 </body>
