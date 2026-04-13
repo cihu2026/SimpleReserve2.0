@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SimpleReserve Pro | 手機管理版</title>
+    <title>SimpleReserve Pro | 後慈湖管理系統</title>
     <style>
         :root {
             --primary: #2563eb;
             --danger: #ef4444;
             --success: #22c55e;
             --secondary: #64748b;
+            --disabled: #e2e8f0;
             --bg: #f1f5f9;
             --card-bg: #ffffff;
             --text: #1e293b;
@@ -35,30 +36,14 @@
             z-index: 100;
         }
 
-        .toolbar { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-
-        input[type="number"], input[type="text"] {
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            outline: none;
-            font-size: 16px;
+        .mode-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: bold;
         }
-
-        button {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
-            transition: opacity 0.2s;
-        }
-
-        button:active { opacity: 0.7; }
-
-        .btn-print { background: var(--primary); color: white; flex: 2; }
-        .btn-cancel { background: var(--secondary); color: white; flex: 1; }
 
         .grid {
             display: grid;
@@ -77,6 +62,13 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: relative;
             border: 1px solid #e2e8f0;
+            transition: transform 0.1s;
+        }
+
+        .card.is-disabled {
+            background: var(--disabled);
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .card-header {
@@ -103,14 +95,6 @@
             color: white;
         }
 
-        .leader-detail {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed #e2e8f0;
-            color: #0369a1;
-            font-size: 12px;
-        }
-
         #editOverlay {
             display: none;
             position: fixed;
@@ -130,7 +114,6 @@
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
             z-index: 1000;
-            overflow: hidden;
         }
 
         .panel-header {
@@ -139,17 +122,35 @@
             padding: 16px;
             text-align: center;
             font-weight: bold;
+            border-radius: 16px 16px 0 0;
         }
 
         .panel-body { padding: 20px; }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 6px; }
         
-        .remain-highlight {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--danger);
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
         }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 10px; }
+        button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .btn-print { background: var(--primary); color: white; flex: 2; }
+        .btn-cancel { background: var(--secondary); color: white; }
 
         .hidden { display: none !important; }
     </style>
@@ -157,51 +158,39 @@
 <body>
 
 <div class="header-bar">
-    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 SimpleReserve2.0</div>
-    <div class="toolbar">
-        <span>梯次:</span>
-        <input type="number" id="maxBatchInput" value="16" min="1" max="16" style="width: 50px;" oninput="saveConfig()">
+    <div style="display: flex; flex-direction: column;">
+        <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">SimpleReserve2.0</span>
+        <div id="trialBadge" class="mode-tag hidden">試營運模式 (1,3,5,7梯)</div>
     </div>
+    <div id="currentDateDisplay" style="font-size: 14px; font-weight: bold;"></div>
 </div>
 
 <div class="grid" id="grid"></div>
 
 <div id="editOverlay" onclick="closePanel()"></div>
 <div id="editPanel" class="hidden">
-    <div class="panel-header" id="panelTitle">編輯梯次</div>
+    <div class="panel-header" id="panelTitle">編輯預約</div>
     <div class="panel-body">
         <div class="form-group">
-            <label>報到時間</label>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <input id="startH" type="number" style="width:100%; text-align:center;">:
-                <input id="startM" type="number" style="width:100%; text-align:center;">
-                ～
-                <input id="endH" type="number" style="width:100%; text-align:center;">:
-                <input id="endM" type="number" style="width:100%; text-align:center;">
-            </div>
+            <label>報到時段</label>
+            <input id="displayTime" type="text" readonly style="background: #f8fafc;">
         </div>
-        <div class="form-group" style="display: flex; gap: 15px;">
+        <div style="display: flex; gap: 15px; margin-bottom: 16px;">
             <div style="flex:1">
-                <label>可報名</label>
-                <input id="editCount" type="number" style="width: 100%;" oninput="updateRemainText()">
+                <label>已報名人數</label>
+                <input id="editUsed" type="number" min="0" max="50">
             </div>
             <div style="flex:1">
-                <label>已報名</label>
-                <input id="editUsed" type="number" style="width: 100%;" oninput="updateRemainText()">
-            </div>
-            <div style="flex:1; text-align:center;">
-                <label>遞補</label>
-                <div id="remainText" class="remain-highlight">0</div>
+                <label>剩餘名額</label>
+                <div id="remainText" style="font-size: 24px; font-weight: bold; color: var(--danger); padding-top: 4px;">0</div>
             </div>
         </div>
         <div class="form-group">
             <label>領隊資訊</label>
-            <div style="display:flex; flex-direction: column; gap:8px;">
-                <input id="leaderName" type="text" placeholder="姓名">
-                <input id="leaderPhone" type="text" placeholder="電話">
-            </div>
+            <input id="leaderName" type="text" placeholder="領隊姓名" style="margin-bottom: 8px;">
+            <input id="leaderPhone" type="text" placeholder="聯絡電話">
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <div class="btn-group">
             <button class="btn-cancel" onclick="closePanel()">取消</button>
             <button class="btn-print" onclick="saveAndPrint()">確定列印</button>
         </div>
@@ -209,171 +198,165 @@
 </div>
 
 <script>
-const defaultData = [
-    [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'],
-    [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
-    [5,'第五梯次','10:45-11:00'], [6,'第六梯次','11:15-11:30'],
-    [7,'第七梯次','12:45-13:00'], [8,'第八梯次','13:15-13:30'],
-    [9,'第九梯次','13:45-14:00'], [10,'第十梯次','14:15-14:30'],
-    [11,'第十一梯次','14:45-15:00'], [12,'第十二梯次','15:15-15:30'],
-    [13,'第十三梯次','15:45-16:00'], [14,'第十四梯次','16:15-16:30'],
-    [15,'第十五梯次','16:45-17:00'], [16,'第十六梯次','17:15-17:30']
+const batchInfo = [
+    {id: 1, time: '08:45-09:00', trial: true},
+    {id: 2, time: '09:15-09:30', trial: false},
+    {id: 3, time: '09:45-10:00', trial: true},
+    {id: 4, time: '10:15-10:30', trial: false},
+    {id: 5, time: '10:45-11:00', trial: true},
+    {id: 6, time: '11:15-11:30', trial: false},
+    {id: 7, time: '12:45-13:00', trial: true},
+    {id: 8, time: '13:15-13:30', trial: false}
 ];
 
 let currentCard = null;
+const MAX_CAPACITY = 50;
+
+function isTrialPeriod(date) {
+    const start = new Date(2026, 3, 22); 
+    const end = new Date(2026, 4, 9);
+    return date >= start && date <= end;
+}
 
 function init() {
-    const today = new Date().toLocaleDateString('zh-TW');
-    if (localStorage.getItem('last_open_date') !== today) {
-        localStorage.setItem('daily_records', '{}');
-        localStorage.setItem('last_open_date', today);
-    }
-    const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
-    const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    const savedMax = localStorage.getItem('max_batch_count') || 16;
-    document.getElementById('maxBatchInput').value = savedMax;
+    const now = new Date();
+    document.getElementById('currentDateDisplay').innerText = now.toLocaleDateString('zh-TW');
+    
+    const trial = isTrialPeriod(now);
+    if(trial) document.getElementById('trialBadge').classList.remove('hidden');
 
+    const dailyRecords = JSON.parse(localStorage.getItem('daily_records_' + now.toDateString()) || '{}');
     const grid = document.getElementById('grid');
-    grid.innerHTML = ''; 
+    grid.innerHTML = '';
 
-    defaultData.forEach(item => {
-        const id = item[0];
-        const record = dailyRecords[id] || { used: 0, total: 50, leader: '', phone: '' };
-        const time = savedTimes[id] || item[2];
-        const remain = record.total - record.used;
+    batchInfo.forEach(batch => {
+        const isOpen = !trial || batch.trial; 
+        const record = dailyRecords[batch.id] || { used: 0, leader: '', phone: '' };
+        const remain = MAX_CAPACITY - record.used;
 
         const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.no = id;
+        card.className = `card ${!isOpen ? 'is-disabled' : ''}`;
         card.innerHTML = `
-            <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已額滿' : '有空位'}</div>
+            ${isOpen ? `<div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已額滿' : '有名額'}</div>` : '<div class="status-tag" style="background:var(--secondary)">暫不開放</div>'}
             <div class="card-header">
-                <div class="batch-name">${item[1]}</div>
-                <div class="batch-time">${time}</div>
+                <div class="batch-name">第 ${batch.id} 梯次</div>
+                <div class="batch-time">報到 ${batch.time}</div>
             </div>
             <div class="card-body">
-                <div class="info-row">可報名：<span>${record.total}</span></div>
-                <div class="info-row">已報名：<span style="color:#2563eb">${record.used}</span></div>
-                <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補：<span>${Math.max(0, remain)}</span></div>
-                <div class="leader-detail">${record.leader ? `👤 ${record.leader} | 📞 ${record.phone}` : ''}</div>
+                <div class="info-row">限制人數：<span>${MAX_CAPACITY}</span></div>
+                <div class="info-row">現場預約：<span style="color:var(--primary)">${record.used}</span></div>
+                <div class="info-row" style="color:var(--danger)">可遞補名額：<span>${Math.max(0, remain)}</span></div>
+                <div style="font-size:11px; color:#94a3b8; margin-top:5px;">${record.leader ? '👤 ' + record.leader : ''}</div>
             </div>
         `;
-        card.onclick = () => openEdit(card);
+        
+        if(isOpen) {
+            card.onclick = () => openEdit(batch, record, card);
+        }
         grid.appendChild(card);
     });
-    filterBatches();
 }
 
-function filterBatches() {
-    const max = parseInt(document.getElementById('maxBatchInput').value) || 0;
-    document.querySelectorAll('.card').forEach(card => card.classList.toggle('hidden', parseInt(card.dataset.no) > max));
-}
-
-function saveConfig() {
-    localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value);
-    filterBatches();
-}
-
-function openEdit(card) {
-    currentCard = card;
-    document.getElementById('editPanel').classList.remove('hidden');
+function openEdit(batch, record, card) {
+    currentCard = { batch, card };
     document.getElementById('editOverlay').style.display = 'block';
-    document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
+    document.getElementById('editPanel').classList.remove('hidden');
+    document.getElementById('panelTitle').innerText = `第 ${batch.id} 梯次 預約`;
+    document.getElementById('displayTime').value = batch.time;
+    document.getElementById('editUsed').value = record.used;
+    document.getElementById('leaderName').value = record.leader || '';
+    document.getElementById('leaderPhone').value = record.phone || '');
     
-    const time = card.querySelector('.batch-time').innerText.split('-');
-    const start = time[0].split(':');
-    const end = time[1].split(':');
-    document.getElementById('startH').value = parseInt(start[0]);
-    document.getElementById('startM').value = parseInt(start[1]);
-    document.getElementById('endH').value = parseInt(end[0]);
-    document.getElementById('endM').value = parseInt(end[1]);
-
-    const spans = card.querySelectorAll('.info-row span');
-    document.getElementById('editCount').value = spans[0].innerText;
-    document.getElementById('editUsed').value = spans[1].innerText;
-    updateRemainText();
-
-    const leaderStr = card.querySelector('.leader-detail').innerText;
-    if (leaderStr) {
-        const parts = leaderStr.replace('👤 ', '').split(' | 📞 ');
-        document.getElementById('leaderName').value = parts[0] || '';
-        document.getElementById('leaderPhone').value = parts[1] || '';
-    } else {
-        document.getElementById('leaderName').value = '';
-        document.getElementById('leaderPhone').value = '';
-    }
+    updateRemainDisplay();
+    document.getElementById('editUsed').oninput = updateRemainDisplay;
 }
 
-function updateRemainText() {
-    const total = parseInt(document.getElementById('editCount').value) || 0;
-    const used = parseInt(document.getElementById('editUsed').value) || 0;
-    document.getElementById('remainText').innerText = Math.max(0, total - used);
+function updateRemainDisplay() {
+    const val = parseInt(document.getElementById('editUsed').value) || 0;
+    document.getElementById('remainText').innerText = Math.max(0, MAX_CAPACITY - val);
 }
 
 function closePanel() {
-    document.getElementById('editPanel').classList.add('hidden');
     document.getElementById('editOverlay').style.display = 'none';
+    document.getElementById('editPanel').classList.add('hidden');
 }
 
 function saveAndPrint() {
-    if (!currentCard) return;
-    const id = currentCard.dataset.no;
+    const used = parseInt(document.getElementById('editUsed').value) || 0;
+    const name = document.getElementById('leaderName').value;
+    const phone = document.getElementById('leaderPhone').value;
+    const dateKey = new Date().toDateString();
 
-    const h1 = document.getElementById('startH').value.toString().padStart(2, '0');
-    const m1 = document.getElementById('startM').value.toString().padStart(2, '0');
-    const h2 = document.getElementById('endH').value.toString().padStart(2, '0');
-    const m2 = document.getElementById('endM').value.toString().padStart(2, '0');
-    const timeText = `${h1}:${m1}-${h2}:${m2}`;
+    const dailyRecords = JSON.parse(localStorage.getItem('daily_records_' + dateKey) || '{}');
+    dailyRecords[currentCard.batch.id] = { used, leader: name, phone: phone };
+    localStorage.setItem('daily_records_' + dateKey, JSON.stringify(dailyRecords));
+
+    printTicket(currentCard.batch.id, currentCard.batch.time, name, phone, used);
     
-    const total = document.getElementById('editCount').value;
-    const used = document.getElementById('editUsed').value;
-    const lName = document.getElementById('leaderName').value;
-    const lPhone = document.getElementById('leaderPhone').value;
-
-    // 1. 儲存數據
-    const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    dailyRecords[id] = { total, used, leader: lName, phone: lPhone };
-    localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
-
-    const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
-    savedTimes[id] = timeText;
-    localStorage.setItem('batch_times', JSON.stringify(savedTimes));
-
-    // 2. 執行列印
-    printTicket(timeText, lName, lPhone, used);
-
-    // 3. 更新 UI 並關閉
     init();
     closePanel();
 }
 
-function printTicket(time, name, phone, used) {
-    const dateStr = new Date().toLocaleDateString();
-    const printWin = window.open('', '', 'width=400,height=600');
-    const ticketHtml = (type) => `
-        <div style="padding: 10px; text-align: center; font-family: sans-serif;">
-            <div style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
-                <h2 style="margin:5px 0;">後慈湖預約單 (${type})</h2><br>
-                <p style="margin:0; font-size:12px;">現場遞補</p>
-            </div>
-            <table style="width: 100%; border-collapse: collapse; font-weight: bold; font-size: 14px;">
-                <tr><td style="border:1px solid #000; padding:6px; background:#eee; width:30%;">日期</td><td style="border:1px solid #000; padding:6px; text-align:left;">${dateStr}</td></tr>
-                <tr><td style="border:1px solid #000; padding:6px; background:#eee;">時間</td><td style="border:1px solid #000; padding:6px; text-align:left;">${time}</td></tr>
-                <tr><td style="border:1px solid #000; padding:6px; background:#eee;">姓名</td><td style="border:1px solid #000; padding:6px; text-align:left;">${name || '________'}</td></tr>
-                <tr><td style="border:1px solid #000; padding:6px; background:#eee;">電話</td><td style="border:1px solid #000; padding:6px; text-align:left;">${phone || '________'}</td></tr>
-                <tr><td style="border:1px solid #000; padding:6px; background:#eee;">人數</td><td style="border:1px solid #000; padding:6px; text-align:left;">${used} 人</td></tr>
+function printTicket(id, time, name, phone, used) {
+    const printWin = window.open('', '', 'width=450,height=800');
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+    
+    const content = (type) => `
+        <div style="width: 80mm; margin: 0 auto; font-family: 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
+            <h1 style="font-size: 28px; margin: 0;">後慈湖預約單</h1>
+            <h2 style="font-size: 24px; margin: 5px 0 15px 0;">(${type})</h2>
+            
+            <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">現場遞補</p>
+            <hr style="border: 1px solid black; margin-bottom: 0;">
+            
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; width: 25%; background-color: #fff;">日期</th>
+                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${dateStr}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">時間</th>
+                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${time}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">姓名</th>
+                    <td style="border: 1px solid black; padding: 12px 10px;">${name || '__________'}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">電話</th>
+                    <td style="border: 1px solid black; padding: 12px 10px;">${phone || '__________'}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">人數</th>
+                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${used} 人</td>
+                </tr>
             </table>
-            <div style="font-size: 10px; text-align: left; margin-top: 10px;">
-            1. 如有符合入園相關優惠者,一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
-            2. 導覽服務站電話：03-3889554。<br></div>
+
+            <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
+                1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
+                2. 導覽服務站電話：<span style="color: blue; text-decoration: underline;">03-3889554</span>。
+            </div>
+            <div style="margin-top: 10px;">------------------------------------------</div>
+        </div>
     `;
 
     printWin.document.write(`
-        <html><body style="width: 58mm; margin:0;" onload="window.print(); window.close();">
-            ${ticketHtml('遊客執據')}
-            <div style="border-top: 1px dashed #000; margin: 15px 0;"></div>
-            ${ticketHtml('站端留存')}
-        </body></html>
+        <html>
+            <head>
+                <style>
+                    body { margin: 0; padding: 0; }
+                    @media print {
+                        .page-break { page-break-after: always; }
+                    }
+                </style>
+            </head>
+            <body onload="window.print();window.close()">
+                ${content('遊客執據')}
+                <br>
+                ${content('站端留存')}
+            </body>
+        </html>
     `);
     printWin.document.close();
 }
