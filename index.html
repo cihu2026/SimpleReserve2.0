@@ -369,15 +369,14 @@ function printTicket(time, name, phone, used) {
     `;
 
     printWin.document.write(`
-       </head>
-        <body onload="setTimeout(function(){ window.print(); window.close(); }, 300);">
+        <html><body style="width: 58mm; margin:0;" onload="window.print(); window.close();">
             ${ticketHtml('遊客執據')}
-            <div style="width: 58mm; border-top: 1.5px dashed #000; margin: 25px 0;"></div>
+            <div style="border-top: 1px dashed #000; margin: 15px 0;"></div>
             ${ticketHtml('站端留存')}
-        </body>
+        </body></html>
     `);
     printWin.document.close();
-}ment.close();
+}
 
 init();
 </script>
