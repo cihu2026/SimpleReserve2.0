@@ -63,6 +63,7 @@
             position: relative;
             border: 1px solid #e2e8f0;
             transition: transform 0.1s;
+            cursor: pointer;
         }
 
         .card.is-disabled {
@@ -265,7 +266,7 @@ function openEdit(batch, record, card) {
     document.getElementById('displayTime').value = batch.time;
     document.getElementById('editUsed').value = record.used;
     document.getElementById('leaderName').value = record.leader || '';
-    document.getElementById('leaderPhone').value = record.phone || '');
+    document.getElementById('leaderPhone').value = record.phone || ''; // 這裡原本多了一個括號，已修正
     
     updateRemainDisplay();
     document.getElementById('editUsed').oninput = updateRemainDisplay;
@@ -303,32 +304,32 @@ function printTicket(id, time, name, phone, used) {
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     
     const content = (type) => `
-        <div style="width: 80mm; margin: 0 auto; font-family: 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
+        <div style="width: 80mm; margin: 0 auto; font-family: 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000; page-break-inside: avoid;">
             <h1 style="font-size: 28px; margin: 0;">後慈湖預約單</h1>
             <h2 style="font-size: 24px; margin: 5px 0 15px 0;">(${type})</h2>
             
             <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">現場遞補</p>
-            <hr style="border: 1px solid black; margin-bottom: 0;">
+            <hr style="border: 1px solid black; margin-bottom: 10px;">
             
             <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
                 <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; width: 25%; background-color: #fff;">日期</th>
+                    <th style="border: 1px solid black; padding: 12px 10px; width: 30%; background-color: #f2f2f2;">日期</th>
                     <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${dateStr}</td>
                 </tr>
                 <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">時間</th>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2;">時間</th>
                     <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${time}</td>
                 </tr>
                 <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">姓名</th>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2;">姓名</th>
                     <td style="border: 1px solid black; padding: 12px 10px;">${name || '__________'}</td>
                 </tr>
                 <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">電話</th>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2;">電話</th>
                     <td style="border: 1px solid black; padding: 12px 10px;">${phone || '__________'}</td>
                 </tr>
                 <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #fff;">人數</th>
+                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2;">人數</th>
                     <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${used} 人</td>
                 </tr>
             </table>
@@ -337,7 +338,6 @@ function printTicket(id, time, name, phone, used) {
                 1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
                 2. 導覽服務站電話：<span style="color: blue; text-decoration: underline;">03-3889554</span>。
             </div>
-            <div style="margin-top: 10px;">------------------------------------------</div>
         </div>
     `;
 
@@ -347,13 +347,13 @@ function printTicket(id, time, name, phone, used) {
                 <style>
                     body { margin: 0; padding: 0; }
                     @media print {
-                        .page-break { page-break-after: always; }
+                        .divider { border-top: 1px dashed #000; margin: 20px 0; }
                     }
                 </style>
             </head>
             <body onload="window.print();window.close()">
                 ${content('遊客執據')}
-                <br>
+                <div class="divider"></div>
                 ${content('站端留存')}
             </body>
         </html>
