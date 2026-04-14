@@ -15,219 +15,129 @@
             --text: #1e293b;
         }
 
-        body {
-            margin: 0;
-            background: var(--bg);
-            font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
-            color: var(--text);
-            -webkit-tap-highlight-color: transparent;
-        }
+        body { margin: 0; background: var(--bg); font-family: -apple-system, sans-serif; color: var(--text); }
 
+        /* Header Styles */
         .header-bar {
-            background: #ffffff;
-            padding: 0.8rem 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: #ffffff; padding: 0.8rem 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
         }
 
-        .toolbar { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-
-        input {
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            outline: none;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
-            transition: opacity 0.2s;
-        }
-
-        button:active { opacity: 0.7; }
-
-        .btn-print { background: var(--primary); color: white; flex: 2; }
-        .btn-save { background: #10b981; color: white; flex: 1.5; }
-        .btn-cancel { background: var(--secondary); color: white; flex: 1; }
-
+        /* Grid Layout */
         .grid {
-            display: grid;
-            gap: 12px;
-            padding: 12px;
+            display: grid; gap: 12px; padding: 12px;
             grid-template-columns: repeat(1, 1fr); 
         }
-
         @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
+        /* Card Styles */
         .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: var(--card-bg); border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; cursor: pointer;
             position: relative;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
         }
-
-        .card-header {
-            background: #f8fafc;
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
+        .card-header { background: #f8fafc; padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
         .batch-name { font-weight: bold; font-size: 1.1rem; color: var(--primary); }
-        .batch-time { font-size: 0.9rem; color: #64748b; margin-top: 4px; }
-
         .card-body { padding: 12px; font-size: 14px; line-height: 1.8; }
         .info-row { display: flex; justify-content: space-between; }
         .info-row span { font-weight: bold; }
+        .status-tag { position: absolute; top: 10px; right: 10px; font-size: 11px; padding: 2px 8px; border-radius: 10px; color: white; }
 
-        .status-tag {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 11px;
-            padding: 2px 10px;
-            border-radius: 20px;
-            color: white;
-            font-weight: bold;
-        }
-
-        #editOverlay {
-            display: none;
-            position: fixed;
-            top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-
+        /* Modal Styles - 模擬圖片中的清單式排版 */
         #editPanel {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 380px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
-            z-index: 1000;
-            overflow: hidden;
+            position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 400px; background: #fff;
+            border-radius: 16px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); z-index: 1000; overflow: hidden;
         }
-
-        .panel-header {
-            background: var(--primary);
-            color: white;
-            padding: 16px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
+        .panel-header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
         .panel-body { padding: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 6px; }
         
-        .remain-highlight {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--danger);
-        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: var(--secondary); margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .row-flex { display: flex; gap: 10px; align-items: center; }
+        .time-input { width: 60px !important; text-align: center; }
+        .remain-num { font-size: 24px; font-weight: bold; color: var(--danger); text-align: center; flex: 1; }
 
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .btn-confirm { background: var(--primary); color: white; }
+        .btn-save { background: var(--success); color: white; }
+        .btn-cancel { background: var(--secondary); color: white; }
+
+        #editOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="header-bar">
-    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">📅 SimpleReserve 2.0</div>
-    <div class="toolbar">
-        <span>開放梯次:</span>
-        <input type="number" id="maxBatchInput" value="8" min="1" max="16" style="width: 50px;" oninput="saveConfig()">
-    </div>
+    <div style="font-weight: 800; color: var(--primary); font-size: 1.2rem;">📅 SimpleReserve 2.0</div>
+    <div class="toolbar">開放梯次: <input type="number" id="maxBatchInput" value="8" style="width: 50px; padding: 5px;" oninput="saveConfig()"></div>
 </div>
 
 <div class="grid" id="grid"></div>
 
 <div id="editOverlay" onclick="closePanel()"></div>
 <div id="editPanel" class="hidden">
-    <div class="panel-header" id="panelTitle">編輯梯次</div>
+    <div class="panel-header" id="panelTitle">第一梯次</div>
     <div class="panel-body">
         <div class="form-group">
             <label>報到時間設定</label>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <input id="startH" type="number" style="width:100%; text-align:center;">:
-                <input id="startM" type="number" style="width:100%; text-align:center;">
-                <span style="color:#64748b">～</span>
-                <input id="endH" type="number" style="width:100%; text-align:center;">:
-                <input id="endM" type="number" style="width:100%; text-align:center;">
+            <div class="row-flex">
+                <input id="startH" type="number" class="time-input">:<input id="startM" type="number" class="time-input">
+                <span>～</span>
+                <input id="endH" type="number" class="time-input">:<input id="endM" type="number" class="time-input">
             </div>
         </div>
-        <div class="form-group" style="display: flex; gap: 15px;">
+        
+        <div class="row-flex" style="margin-bottom: 15px;">
             <div style="flex:1">
-                <label>可報名人數:</label>
-                <input id="editCount" type="number" style="width: 100%;" oninput="updateRemainText()">
+                <label>可報名人數</label>
+                <input type="number" id="editTotal" oninput="calculateRemain()">
             </div>
             <div style="flex:1">
-                <label>已報名人數:</label>
-                <input id="editUsed" type="number" style="width: 100%; font-weight:bold; border: 2px solid var(--primary);" oninput="updateRemainText()">
+                <label>已報名人數</label>
+                <input type="number" id="editUsed" oninput="calculateRemain()">
             </div>
-            <div style="flex:1; text-align:center;">
-                <label>可遞補人數:</label>
-                <div id="remainText" class="remain-highlight">0</div>
+            <div style="flex:1; text-align: center;">
+                <label>可遞補</label>
+                <div id="remainText" class="remain-num">50</div>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label>領隊姓名 (每次預約請重新輸入)</label>
+            <input type="text" id="leaderName" placeholder="請輸入姓名">
         </div>
         <div class="form-group">
-            <label>領隊資訊 (僅列印單據使用)</label>
-            <div style="display:flex; flex-direction: column; gap:8px;">
-                <input id="leaderName" type="text" placeholder="姓名">
-                <input id="leaderPhone" type="tel" placeholder="電話">
-            </div>
+            <label>領隊電話</label>
+            <input type="tel" id="leaderPhone" placeholder="請輸入電話">
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
+        
+        <div class="btn-group">
             <button class="btn-cancel" onclick="closePanel()">取消</button>
             <button class="btn-save" onclick="handleDataSave(false)">僅儲存</button>
-            <button class="btn-print" onclick="handleDataSave(true)">儲存並列印</button>
+            <button class="btn-confirm" onclick="handleDataSave(true)">儲存並列印</button>
         </div>
     </div>
 </div>
 
 <script>
+// 基礎梯次資料
 const defaultData = [
-    [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'],
-    [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
-    [5,'第五梯次','10:45-11:00'], [6,'第六梯次','11:15-11:30'],
-    [7,'第七梯次','12:45-13:00'], [8,'第八梯次','13:15-13:30'],
-    [9,'第九梯次','13:45-14:00'], [10,'第十梯次','14:15-14:30'],
-    [11,'第十一梯次','14:45-15:00'], [12,'第十二梯次','15:15-15:30'],
-    [13,'第十三梯次','15:45-16:00'], [14,'第十四梯次','16:15-16:30'],
-    [15,'第十五梯次','16:45-17:00'], [16,'第十六梯次','17:15-17:30']
+    [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'], [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
+    [5,'第五梯次','10:45-11:00'], [6,'第六梯次','11:15-11:30'], [7,'第七梯次','12:45-13:00'], [8,'第八梯次','13:15-13:30']
 ];
 
-let currentCard = null;
+let currentCardNo = null;
 
+// 初始化頁面
 function init() {
-    const today = new Date().toLocaleDateString('zh-TW');
-    if (localStorage.getItem('last_open_date') !== today) {
-        localStorage.setItem('daily_records', '{}');
-        localStorage.setItem('last_open_date', today);
-    }
-    const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
+    const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     const savedMax = localStorage.getItem('max_batch_count') || 8;
     document.getElementById('maxBatchInput').value = savedMax;
 
@@ -236,96 +146,74 @@ function init() {
 
     defaultData.forEach(item => {
         const id = item[0];
-        const record = dailyRecords[id] || { used: 0, total: 50, leader: '', phone: '' };
+        const record = dailyRecords[id] || { used: 0, total: 50 };
         const time = savedTimes[id] || item[2];
         const remain = record.total - record.used;
 
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.no = id;
-        card.dataset.leader = record.leader || ''; // 存入 dataset 以便編輯，不顯示在頁面
-        card.dataset.phone = record.phone || '';
         card.innerHTML = `
             <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已滿額' : '有空位'}</div>
-            <div class="card-header">
-                <div class="batch-name">${item[1]}</div>
-                <div class="batch-time">${time}</div>
-            </div>
+            <div class="card-header"><div class="batch-name">${item[1]}</div><div style="color:var(--secondary); font-size:12px;">${time}</div></div>
             <div class="card-body">
-                <div class="info-row">可報名人數:：<span>${record.total}</span></div>
-                <div class="info-row">已報名人數：<span style="color:#2563eb">${record.used}</span></div>
-                <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補人數：<span>${Math.max(0, remain)}</span></div>
+                <div class="info-row">可報名人數：<span>${record.total}</span></div>
+                <div class="info-row">已報名人數：<span style="color:var(--primary)">${record.used}</span></div>
+                <div class="info-row" style="color:var(--danger)">可遞補人數：<span>${Math.max(0, remain)}</span></div>
             </div>
         `;
-        card.onclick = () => openEdit(card);
+        card.onclick = () => openEdit(id, item[1], time, record.total, record.used);
         grid.appendChild(card);
     });
     filterBatches();
 }
 
-function filterBatches() {
-    const max = parseInt(document.getElementById('maxBatchInput').value) || 0;
-    document.querySelectorAll('.card').forEach(card => card.classList.toggle('hidden', parseInt(card.dataset.no) > max));
-}
-
-function saveConfig() {
-    localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value);
-    filterBatches();
-}
-
-function openEdit(card) {
-    currentCard = card;
+// 開啟編輯視窗
+function openEdit(id, title, timeStr, total, used) {
+    currentCardNo = id;
     document.getElementById('editPanel').classList.remove('hidden');
     document.getElementById('editOverlay').style.display = 'block';
-    document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
     
-    const time = card.querySelector('.batch-time').innerText.split('-');
-    const start = time[0].split(':');
-    const end = time[1].split(':');
-    document.getElementById('startH').value = parseInt(start[0]);
-    document.getElementById('startM').value = parseInt(start[1]);
-    document.getElementById('endH').value = parseInt(end[0]);
-    document.getElementById('endM').value = parseInt(end[1]);
+    document.getElementById('panelTitle').innerText = title;
+    
+    // 解析時間
+    const times = timeStr.split('-');
+    const start = times[0].split(':');
+    const end = times[1].split(':');
+    document.getElementById('startH').value = start[0];
+    document.getElementById('startM').value = start[1];
+    document.getElementById('endH').value = end[0];
+    document.getElementById('endM').value = end[1];
 
-    const spans = card.querySelectorAll('.info-row span');
-    document.getElementById('editCount').value = spans[0].innerText;
-    document.getElementById('editUsed').value = spans[1].innerText;
-    
-    // 從 dataset 讀取隱藏個資
-    document.getElementById('leaderName').value = card.dataset.leader;
-    document.getElementById('leaderPhone').value = card.dataset.phone;
-    
-    updateRemainText();
+    // 設定人數
+    document.getElementById('editTotal').value = total;
+    document.getElementById('editUsed').value = used;
+    calculateRemain();
+
+    // 【關鍵修正：清空個資】
+    // 每次打開視窗時，強制清空姓名與電話，不保留上一次的「123」
+    document.getElementById('leaderName').value = ""; 
+    document.getElementById('leaderPhone').value = "";
 }
 
-function updateRemainText() {
-    const total = parseInt(document.getElementById('editCount').value) || 0;
+function calculateRemain() {
+    const total = parseInt(document.getElementById('editTotal').value) || 0;
     const used = parseInt(document.getElementById('editUsed').value) || 0;
     document.getElementById('remainText').innerText = Math.max(0, total - used);
 }
 
-function closePanel() {
-    document.getElementById('editPanel').classList.add('hidden');
-    document.getElementById('editOverlay').style.display = 'none';
-}
-
+// 儲存邏輯
 function handleDataSave(shouldPrint) {
-    if (!currentCard) return;
-    const id = currentCard.dataset.no;
+    const id = currentCardNo;
+    const total = parseInt(document.getElementById('editTotal').value);
+    const used = parseInt(document.getElementById('editUsed').value);
+    const name = document.getElementById('leaderName').value;
+    const phone = document.getElementById('leaderPhone').value;
+    const timeText = `${document.getElementById('startH').value.padStart(2,'0')}:${document.getElementById('startM').value.padStart(2,'0')}-${document.getElementById('endH').value.padStart(2,'0')}:${document.getElementById('endM').value.padStart(2,'0')}`;
 
-    const h1 = document.getElementById('startH').value.toString().padStart(2, '0');
-    const m1 = document.getElementById('startM').value.toString().padStart(2, '0');
-    const h2 = document.getElementById('endH').value.toString().padStart(2, '0');
-    const m2 = document.getElementById('endM').value.toString().padStart(2, '0');
-    const timeText = `${h1}:${m1}-${h2}:${m2}`;
-    
-    const total = document.getElementById('editCount').value;
-    const used = document.getElementById('editUsed').value;
-    const lName = document.getElementById('leaderName').value;
-    const lPhone = document.getElementById('leaderPhone').value;
-
+    // 更新 localStorage
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    dailyRecords[id] = { total, used, leader: lName, phone: lPhone };
+    dailyRecords[id] = { total, used }; // 我們這裡不存姓名電話到資料庫，確保下次打開是乾淨的
     localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
 
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
@@ -333,47 +221,45 @@ function handleDataSave(shouldPrint) {
     localStorage.setItem('batch_times', JSON.stringify(savedTimes));
 
     if (shouldPrint) {
-        printTicket(timeText, lName, lPhone, used);
+        printTicket(timeText, name, phone, used);
     }
 
     init();
     closePanel();
 }
 
+// 列印功能 (適配熱感紙)
 function printTicket(time, name, phone, used) {
     const today = new Date();
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-    const printWin = window.open('', '', 'width=450,height=800');
+    const printWin = window.open('', '', 'width=400');
     
-    const ticketHtml = (type) => `
-        <div style="width: 72mm; margin: 0 auto; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
-            <h1 style="font-size: 24px; margin: 0;">後慈湖預約單</h1>
-            <h2 style="font-size: 20px; margin: 5px 0 15px 0;">(${type})</h2>
-            <p style="font-size: 16px; font-weight: bold; margin: 10px 0; border:1px solid #000; display:inline-block; padding:2px 10px;">現場遞補</p>
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
-                <tr><th style="border: 1px solid black; padding: 10px 5px; width: 30%; background-color: #f2f2f2; text-align: center;">日期</th><td style="border: 1px solid black; padding: 10px 10px; font-weight: bold;">${dateStr}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">時間</th><td style="border: 1px solid black; padding: 10px 10px; font-weight: bold;">${time}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">姓名</th><td style="border: 1px solid black; padding: 10px 10px;">${name || '__________'}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">電話</th><td style="border: 1px solid black; padding: 10px 10px;">${phone || '__________'}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">人數</th><td style="border: 1px solid black; padding: 10px 10px; font-weight: 900; font-size: 22px;">${used} 人</td></tr>
+    const html = `
+        <div style="width:72mm; font-family:sans-serif; text-align:center; padding:10px;">
+            <h2 style="margin:0;">後慈湖預約單</h2>
+            <p style="font-size:14px; margin:5px;">(現場遞補)</p>
+            <table border="1" style="width:100%; border-collapse:collapse; margin-top:10px; font-size:16px;">
+                <tr><th style="padding:5px; background:#eee;">日期</th><td style="padding:5px;">${dateStr}</td></tr>
+                <tr><th style="padding:5px; background:#eee;">時間</th><td style="padding:5px;">${time}</td></tr>
+                <tr><th style="padding:5px; background:#eee;">姓名</th><td style="padding:5px;">${name || ''}</td></tr>
+                <tr><th style="padding:5px; background:#eee;">電話</th><td style="padding:5px;">${phone || ''}</td></tr>
+                <tr><th style="padding:5px; background:#eee;">人數</th><td style="padding:5px; font-weight:bold;">${used} 人</td></tr>
             </table>
-            <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
-                1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
-                2. 導覽服務站電話：03-3889554。<br>
-                ※請依照上方時間區間報到，謝謝配合！
-            </div>
+            <p style="font-size:11px; text-align:left; margin-top:10px;">1. 請持本單據報到。<br>2. 服務電話：03-3889554</p>
         </div>
     `;
-
-    printWin.document.write(`
-        <html><body style="margin:0;" onload="window.print(); setTimeout(() => window.close(), 500);">
-            ${ticketHtml('遊客執據')}
-            <div style="border-top: 2px dashed #000; margin: 30px 0; width: 100%;"></div>
-            ${ticketHtml('站端留存')}
-            <div style="height: 30mm;"></div>
-        </body></html>
-    `);
+    
+    printWin.document.write(html);
     printWin.document.close();
+    printWin.print();
+    printWin.close();
+}
+
+function closePanel() { document.getElementById('editPanel').classList.add('hidden'); document.getElementById('editOverlay').style.display = 'none'; }
+function saveConfig() { localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value); init(); }
+function filterBatches() {
+    const max = parseInt(document.getElementById('maxBatchInput').value);
+    document.querySelectorAll('.card').forEach(c => c.classList.toggle('hidden', parseInt(c.dataset.no) > max));
 }
 
 init();
