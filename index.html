@@ -179,15 +179,15 @@
         </div>
         <div class="form-group" style="display: flex; gap: 15px;">
             <div style="flex:1">
-                <label>📋總容量：</label>
+                <label>📋可報名人數：：</label>
                 <input id="editCount" type="number" style="width: 100%;" oninput="updateRemainText()">
             </div>
             <div style="flex:1">
-                <label>👥本次報名：</label>
+                <label>👥已報名人數：</label>
                 <input id="editUsed" type="number" style="width: 100%; font-weight:bold; border: 2px solid var(--primary);" oninput="updateRemainText()" placeholder="輸入人數">
             </div>
             <div style="flex:1; text-align:center;">
-                <label>⭐剩餘遞補：</label>
+                <label>⭐可遞補人數</label>
                 <div id="remainText" class="remain-highlight">0</div>
             </div>
         </div>
@@ -253,9 +253,9 @@ function init() {
                 <div class="batch-time">${time}</div>
             </div>
             <div class="card-body">
-                <div class="info-row">📋總容量：<span>${record.total}</span></div>
+                <div class="info-row">📋可報名人數：<span>${record.total}</span></div>
                 <div class="info-row">👥已報名人數：<span style="color:#2563eb">${record.used}</span></div>
-                <div class="info-row" style="color:var(--danger); font-weight:bold;"> ⭐剩餘遞補：<span>${Math.max(0, remain)}</span></div>
+                <div class="info-row" style="color:var(--danger); font-weight:bold;"> ⭐可遞補人數<span>${Math.max(0, remain)}</span></div>
             </div>
         `;
         card.onclick = () => openEdit(card);
