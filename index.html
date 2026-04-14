@@ -345,36 +345,30 @@ function closePanel() {
 }
 
 function handleDataSave(shouldPrint) {
-    if (!currentCard) return;
-    const id = currentCard.dataset.no;
+    if (!currentCardNo) return;
+    const id = currentCardNo;
+    const total = parseInt(document.getElementById('editTotal').value);
+    const used = parseInt(document.getElementById('editUsed').value);
+    const name = document.getElementById('leaderName').value;
+    const phone = document.getElementById('leaderPhone').value;
+    const timeText = `${document.getElementById('startH').value.toString().padStart(2,'0')}:${document.getElementById('startM').value.toString().padStart(2,'0')}-${document.getElementById('endH').value.toString().padStart(2,'0')}:${document.getElementById('endM').value.toString().padStart(2,'0')}`;
 
-    const h1 = document.getElementById('startH').value.toString().padStart(2, '0');
-    const m1 = document.getElementById('startM').value.toString().padStart(2, '0');
-    const h2 = document.getElementById('endH').value.toString().padStart(2, '0');
-    const m2 = document.getElementById('endM').value.toString().padStart(2, '0');
-    const timeText = `${h1}:${m1}-${h2}:${m2}`;
-    
-    const total = document.getElementById('editCount').value;
-    const used = document.getElementById('editUsed').value;
-    const lName = document.getElementById('leaderName').value;
-    const lPhone = document.getElementById('leaderPhone').value;
-
+    // 儲存數據至 localStorage (不儲存個資，落實隱私政策)
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    dailyRecords[id] = { total, used, leader: lName, phone: lPhone };
+    dailyRecords[id] = { total, used }; 
     localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
 
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     savedTimes[id] = timeText;
     localStorage.setItem('batch_times', JSON.stringify(savedTimes));
 
+    // 如果點選列印，則呼叫列印函式
     if (shouldPrint) {
-        printTicket(timeText, lName, lPhone, used);
+        printTicket(timeText, name, phone, used);
     }
 
-    init();
-    closePanel();
+    init(); closePanel();
 }
-
 function printTicket(time, name, phone, used) {
     const today = new Date();
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
