@@ -220,12 +220,15 @@ const defaultData = [
 
 let currentCard = null;
 
+// 初始化頁面
 function init() {
     const today = new Date().toLocaleDateString('zh-TW');
+    // 跨日自動清除記錄
     if (localStorage.getItem('last_open_date') !== today) {
         localStorage.setItem('daily_records', '{}');
         localStorage.setItem('last_open_date', today);
     }
+    
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
     const savedMax = localStorage.getItem('max_batch_count') || 8;
@@ -236,33 +239,29 @@ function init() {
 
     defaultData.forEach(item => {
         const id = item[0];
-        const record = dailyRecords[id] || { used: 0, total: 50, leader: '', phone: '' };
+        const record = dailyRecords[id] || { used: 0, total: 50 };
         const time = savedTimes[id] || item[2];
         const remain = record.total - record.used;
 
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.no = id;
-        card.dataset.leader = record.leader || ''; // 存入 dataset 以便編輯，不顯示在頁面
-        card.dataset.phone = record.phone || '';
         card.innerHTML = `
             <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已滿額' : '有空位'}</div>
-            <div class="card-header">
-                <div class="batch-name">${item[1]}</div>
-                <div class="batch-time">${time}</div>
-            </div>
+            <div class="card-header"><div class="batch-name">${item[1]}</div><div style="color:var(--secondary); font-size:13px; margin-top:4px; font-weight:600;">${time}</div></div>
             <div class="card-body">
-                <div class="info-row">📝可預約人數：<span>${record.total}</span></div>
-                <div class="info-row">👥已報名人數：<span style="color:#2563eb">${record.used}</span></div>
-                <div class="info-row" style="color:var(--danger); font-weight:bold;"> ⭐可遞補人數：<span>${Math.max(0, remain)}</span></div>
+                <div class="info-row">梯次總量：<span>${record.total}</span></div>
+                <div class="info-row">預約人數：<span style="color:var(--primary)">${record.used}</span></div>
+                <div class="info-row" style="color:var(--danger)">可遞補人數：<span>${Math.max(0, remain)}</span></div>
             </div>
         `;
-        card.onclick = () => openEdit(card);
+        card.onclick = () => openEdit(id, item[1], time, record.total, record.used);
         grid.appendChild(card);
     });
     filterBatches();
 }
 
+// 修正：開放梯次數量控制函式
 function filterBatches() {
     const max = parseInt(document.getElementById('maxBatchInput').value) || 0;
     document.querySelectorAll('.card').forEach(card => card.classList.toggle('hidden', parseInt(card.dataset.no) > max));
@@ -303,47 +302,20 @@ function openEdit(id, title, timeStr, total, used) {
     document.getElementById('leaderName').placeholder = "請輸入姓名"; // 恢復 placeholder
 }
 
-function saveConfig() {
-    localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value);
-    filterBatches();
-}
-
-function openEdit(card) {
-    currentCard = card;
-    document.getElementById('editPanel').classList.remove('hidden');
-    document.getElementById('editOverlay').style.display = 'block';
-    document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
-    
-    const time = card.querySelector('.batch-time').innerText.split('-');
-    const start = time[0].split(':');
-    const end = time[1].split(':');
-    document.getElementById('startH').value = parseInt(start[0]);
-    document.getElementById('startM').value = parseInt(start[1]);
-    document.getElementById('endH').value = parseInt(end[0]);
-    document.getElementById('endM').value = parseInt(end[1]);
-
-    const spans = card.querySelectorAll('.info-row span');
-    document.getElementById('editCount').value = spans[0].innerText;
-    document.getElementById('editUsed').value = spans[1].innerText;
-    
-    // 從 dataset 讀取隱藏個資
-    document.getElementById('leaderName').value = card.dataset.leader;
-    document.getElementById('leaderPhone').value = card.dataset.phone;
-    
-    updateRemainText();
-}
-
-function updateRemainText() {
-    const total = parseInt(document.getElementById('editCount').value) || 0;
+// 計算剩餘遞補
+function calculateRemain() {
+    const total = parseInt(document.getElementById('editTotal').value) || 0;
     const used = parseInt(document.getElementById('editUsed').value) || 0;
     document.getElementById('remainText').innerText = Math.max(0, total - used);
 }
 
-function closePanel() {
-    document.getElementById('editPanel').classList.add('hidden');
-    document.getElementById('editOverlay').style.display = 'none';
+// 關閉視窗函式
+function closePanel() { 
+    document.getElementById('editPanel').classList.add('hidden'); 
+    document.getElementById('editOverlay').style.display = 'none'; 
 }
 
+// 修正：核心數據儲存邏輯（修正之前改錯的問題）
 function handleDataSave(shouldPrint) {
     if (!currentCardNo) return;
     const id = currentCardNo;
@@ -369,6 +341,7 @@ function handleDataSave(shouldPrint) {
 
     init(); closePanel();
 }
+
 function printTicket(time, name, phone, used) {
     const today = new Date();
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
