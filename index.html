@@ -358,33 +358,61 @@ function handleDataSave(shouldPrint) {
 function printTicket(time, name, phone, used) {
     const today = new Date();
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-    const printWin = window.open('', '', 'width=450,height=800');
+    // 打開列印視窗，寬度設為適合熱感紙的 300-400px
+    const printWin = window.open('', '', 'width=400,height=600');
     
     const ticketHtml = (type) => `
-        <div style="width: 80mm; margin: 0 auto; font-family: 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
-            <h1 style="font-size: 28px; margin: 0;">後慈湖預約單</h1>
-            <h2 style="font-size: 24px; margin: 5px 0 15px 0;">(${type})</h2>
-            <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">現場遞補</p>
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
-                <tr><th style="border: 1px solid black; padding: 12px 10px; width: 30%; background-color: #f2f2f2; text-align: center;">日期</th><td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${dateStr}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">時間</th><td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${time}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">姓名</th><td style="border: 1px solid black; padding: 12px 10px;">${name || '__________'}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">電話</th><td style="border: 1px solid black; padding: 12px 10px;">${phone || '__________'}</td></tr>
-                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">人數</th><td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${used} 人</td></tr>
+        <div style="width: 72mm; margin: 0 auto; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; padding: 2mm; text-align: center; color: #000; background: #fff;">
+            <h1 style="font-size: 24px; margin: 0; letter-spacing: 2px;">後慈湖預約單</h1>
+            <h2 style="font-size: 20px; margin: 2px 0 10px 0;">(${type})</h2>
+            
+            <p style="font-size: 16px; font-weight: bold; margin: 5px 0; border: 1.5px solid #000; display: inline-block; padding: 2px 10px;">現場遞補</p>
+            
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left; margin-top: 10px;">
+                <tr>
+                    <th style="border: 1.5px solid black; padding: 8px 5px; width: 30%; background-color: #eee; text-align: center;">日期</th>
+                    <td style="border: 1.5px solid black; padding: 8px 10px; font-weight: bold;">${dateStr}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1.5px solid black; padding: 8px 5px; background-color: #eee; text-align: center;">時間</th>
+                    <td style="border: 1.5px solid black; padding: 8px 10px; font-weight: bold;">${time}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1.5px solid black; padding: 8px 5px; background-color: #eee; text-align: center;">姓名</th>
+                    <td style="border: 1.5px solid black; padding: 8px 10px;">${name || ''}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1.5px solid black; padding: 8px 5px; background-color: #eee; text-align: center;">電話</th>
+                    <td style="border: 1.5px solid black; padding: 8px 10px;">${phone || ''}</td>
+                </tr>
+                <tr>
+                    <th style="border: 1.5px solid black; padding: 8px 5px; background-color: #eee; text-align: center;">人數</th>
+                    <td style="border: 1.5px solid black; padding: 8px 10px; font-weight: 900; font-size: 22px;">${used} 人</td>
+                </tr>
             </table>
-            <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
+
+            <div style="text-align: left; font-size: 12px; margin-top: 10px; line-height: 1.4; border-top: 1px solid #ccc; padding-top: 5px;">
                 1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
-                2. 導覽服務站電話：<span style="color: blue; text-decoration: underline;">03-3889554</span>。
+                2. 導覽服務站電話：03-3889554。
             </div>
         </div>
     `;
 
     printWin.document.write(`
-        <html><body style="margin:0;" onload="window.print(); setTimeout(() => window.close(), 500);">
-            ${ticketHtml('遊客執據')}
-            <div style="border-top: 2px dashed #000; margin: 30px 0; width: 100%;"></div>
-            ${ticketHtml('站端留存')}
-        </body></html>
+        <html>
+            <head>
+                <style>
+                    @page { margin: 0; }
+                    body { margin: 0; padding: 0; background: #fff; }
+                    .cut-line { border-top: 2px dashed #000; margin: 20px 0; width: 100%; }
+                </style>
+            </head>
+            <body onload="window.print(); setTimeout(() => window.close(), 500);">
+                ${ticketHtml('遊客執據')}
+                <div class="cut-line"></div>
+                ${ticketHtml('站端留存')}
+                <div style="height: 20mm;"></div> </body>
+        </html>
     `);
     printWin.document.close();
 }
