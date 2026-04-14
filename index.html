@@ -62,6 +62,7 @@
         .btn-save { background: #10b981; color: white; flex: 1.5; }
         .btn-cancel { background: var(--secondary); color: white; flex: 1; }
 
+        /* 調整 Grid 排版 */
         .grid {
             display: grid;
             gap: 12px;
@@ -70,6 +71,8 @@
         }
 
         @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        /* 設定寬螢幕為一排四個 */
+        @media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
         .card {
             background: var(--card-bg);
@@ -321,7 +324,6 @@ function closePanel() {
     document.getElementById('editOverlay').style.display = 'none';
 }
 
-// 核心功能修改：合併儲存邏輯，根據參數決定是否列印
 function handleDataSave(shouldPrint) {
     if (!currentCard) return;
     const id = currentCard.dataset.no;
@@ -345,7 +347,6 @@ function handleDataSave(shouldPrint) {
     savedTimes[id] = timeText;
     localStorage.setItem('batch_times', JSON.stringify(savedTimes));
 
-    // 如果點擊的是列印按鈕才執行列印
     if (shouldPrint) {
         printTicket(timeText, lName, lPhone, used);
     }
