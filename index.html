@@ -268,6 +268,41 @@ function filterBatches() {
     document.querySelectorAll('.card').forEach(card => card.classList.toggle('hidden', parseInt(card.dataset.no) > max));
 }
 
+// 儲存設置函式
+function saveConfig() {
+    localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value);
+    filterBatches();
+}
+
+// 開啟編輯視窗
+function openEdit(id, title, timeStr, total, used) {
+    currentCardNo = id;
+    document.getElementById('editPanel').classList.remove('hidden');
+    document.getElementById('editOverlay').style.display = 'block';
+    document.getElementById('panelTitle').innerText = title;
+    
+    // 解析時間
+    const times = timeStr.split('-');
+    const start = times[0].split(':');
+    const end = times[1].split(':');
+    document.getElementById('startH').value = start[0];
+    document.getElementById('startM').value = start[1];
+    document.getElementById('endH').value = end[0];
+    document.getElementById('endM').value = end[1];
+
+    // 設定人數
+    document.getElementById('editTotal').value = total;
+    document.getElementById('editUsed').value = used;
+    
+    calculateRemain();
+
+    // 【修正：個資隱私】
+    // 每次打開視窗時，徹底清空姓名與電話欄位，絕不保留上一次的「123」
+    document.getElementById('leaderName').value = ""; 
+    document.getElementById('leaderPhone').value = "";
+    document.getElementById('leaderName').placeholder = "請輸入姓名"; // 恢復 placeholder
+}
+
 function saveConfig() {
     localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value);
     filterBatches();
