@@ -252,9 +252,9 @@ function init() {
                 <div class="batch-time">${time}</div>
             </div>
             <div class="card-body">
-                <div class="info-row">梯次總量：<span>${record.total}</span></div>
-                <div class="info-row">預約人數：<span style="color:#2563eb">${record.used}</span></div>
-                <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補數：<span>${Math.max(0, remain)}</span></div>
+                <div class="info-row">可報名人數:：<span>${record.total}</span></div>
+                <div class="info-row">已報名人數：<span style="color:#2563eb">${record.used}</span></div>
+                <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補人數：<span>${Math.max(0, remain)}</span></div>
             </div>
         `;
         card.onclick = () => openEdit(card);
