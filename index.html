@@ -301,6 +301,7 @@ function openEdit(card) {
 function updateRemainText() {
     const total = parseInt(document.getElementById('editCount').value) || 0;
     const used = parseInt(document.getElementById('editUsed').value) || 0;
+    // 【核心邏輯】遞補數 = 總量 - 預約人數
     document.getElementById('remainText').innerText = Math.max(0, total - used);
 }
 
