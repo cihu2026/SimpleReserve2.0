@@ -109,6 +109,10 @@
         </div>
 
         <div class="form-group">
+            <label>預約人數</label></label>
+            <input type="tel" id="leaderPhone" placeholder="請輸入預約人數">
+        </div>
+        <div class="form-group">
             <label>領隊姓名 (每次預約請重新輸入)</label>
             <input type="text" id="leaderName" placeholder="請輸入姓名">
         </div>
@@ -116,11 +120,11 @@
             <label>領隊電話</label>
             <input type="tel" id="leaderPhone" placeholder="請輸入電話">
         </div>
-        
+       
         <div class="btn-group">
             <button class="btn-cancel" onclick="closePanel()">取消</button>
-            <button class="btn-save" onclick="handleDataSave(false)">僅儲存</button>
-            <button class="btn-confirm" onclick="handleDataSave(true)">儲存並列印</button>
+            <button class="btn-save" onclick="handleDataSave(false)">儲存時間</button>
+            <button class="btn-confirm" onclick="handleDataSave(true)">確認並列印</button>
         </div>
     </div>
 </div>
@@ -245,9 +249,14 @@ function printTicket(time, name, phone, used) {
                 <tr><th style="padding:5px; background:#eee;">電話</th><td style="padding:5px;">${phone || ''}</td></tr>
                 <tr><th style="padding:5px; background:#eee;">人數</th><td style="padding:5px; font-weight:bold;">${used} 人</td></tr>
             </table>
-            <p style="font-size:11px; text-align:left; margin-top:10px;">1. 請持本單據報到。<br>2. 服務電話：03-3889554</p>
+            <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
+                1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
+                2. 導覽服務站電話：03-3889554。<br>
+                ※請依照上方時間區間報到，謝謝配合！
+            </div>
         </div>
     `;
+
     
     printWin.document.write(html);
     printWin.document.close();
