@@ -8,129 +8,117 @@
         :root {
             --primary: #2563eb;
             --danger: #ef4444;
-            --success: #22c55e;
+            --success: #10b981;
             --secondary: #64748b;
-            --bg: #f1f5f9;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #1e293b;
         }
 
-        body { margin: 0; background: var(--bg); font-family: -apple-system, sans-serif; color: var(--text); }
+        body { margin: 0; background: var(--bg); font-family: -apple-system, "PingFang TC", sans-serif; color: var(--text); }
 
-        /* Header Styles */
         .header-bar {
-            background: #ffffff; padding: 0.8rem 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: #ffffff; padding: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
         }
 
-        /* Grid Layout */
-        .grid {
-            display: grid; gap: 12px; padding: 12px;
-            grid-template-columns: repeat(1, 1fr); 
-        }
-        @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+        .grid { display: grid; gap: 16px; padding: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 
-        /* Card Styles */
         .card {
-            background: var(--card-bg); border-radius: 12px; overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; cursor: pointer;
-            position: relative;
+            background: var(--card-bg); border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; cursor: pointer;
+            position: relative; transition: transform 0.2s;
         }
-        .card-header { background: #f8fafc; padding: 12px; text-align: center; border-bottom: 1px solid #e2e8f0; }
-        .batch-name { font-weight: bold; font-size: 1.1rem; color: var(--primary); }
-        .card-body { padding: 12px; font-size: 14px; line-height: 1.8; }
-        .info-row { display: flex; justify-content: space-between; }
-        .info-row span { font-weight: bold; }
-        .status-tag { position: absolute; top: 10px; right: 10px; font-size: 11px; padding: 2px 8px; border-radius: 10px; color: white; }
+        .card:active { transform: scale(0.98); }
+        .card-header { padding: 16px; text-align: center; border-bottom: 1px solid #f1f5f9; }
+        .batch-name { font-weight: 800; font-size: 1.2rem; color: var(--primary); }
+        .card-body { padding: 16px; font-size: 15px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .info-row span { font-weight: 700; }
+        .status-tag { position: absolute; top: 12px; right: 12px; font-size: 12px; padding: 4px 10px; border-radius: 20px; color: white; font-weight: bold; }
 
-        /* Modal Styles - 模擬圖片中的清單式排版 */
+        #editOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.6); z-index: 999; backdrop-filter: blur(4px); }
+        
         #editPanel {
             position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            width: 90%; max-width: 400px; background: #fff;
-            border-radius: 16px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); z-index: 1000; overflow: hidden;
+            width: 90%; max-width: 420px; background: #fff;
+            border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); z-index: 1000; overflow: hidden;
         }
-        .panel-header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+        .panel-header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: 800; font-size: 1.2rem; }
         .panel-body { padding: 20px; }
         
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; color: var(--secondary); margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .form-line { display: flex; align-items: center; margin-bottom: 15px; }
+        .form-line label { width: 90px; font-size: 16px; font-weight: 600; color: #334155; }
         
-        .row-flex { display: flex; gap: 10px; align-items: center; }
-        .time-input { width: 60px !important; text-align: center; }
-        .remain-num { font-size: 24px; font-weight: bold; color: var(--danger); text-align: center; flex: 1; }
+        input[type="text"], input[type="tel"], input[type="number"] {
+            flex: 1; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; 
+            font-size: 16px; outline: none;
+        }
+        input:focus { border-color: var(--primary); }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .time-group { display: flex; align-items: center; gap: 5px; flex: 1; }
+        .time-group input { width: 55px; flex: none; text-align: center; padding: 8px 0; }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+        button { 
+            flex: 1; padding: 12px; border-radius: 10px; border: none; 
+            font-weight: 700; cursor: pointer; font-size: 16px;
+        }
         .btn-confirm { background: var(--primary); color: white; }
-        .btn-save { background: var(--success); color: white; }
-        .btn-cancel { background: var(--secondary); color: white; }
+        .btn-cancel { background: #e2e8f0; color: var(--secondary); }
 
-        #editOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="header-bar">
-    <div style="font-weight: 800; color: var(--primary); font-size: 1.2rem;">📅 SimpleReserve 2.0</div>
-    <div class="toolbar">開放梯次: <input type="number" id="maxBatchInput" value="8" style="width: 50px; padding: 5px;" oninput="saveConfig()"></div>
+    <div style="font-weight: 900; color: var(--primary); font-size: 1.4rem;">📅 SimpleReserve 2.0</div>
+    <div style="font-size: 14px;">梯次: <input type="number" id="maxBatchInput" value="8" style="width: 45px; border-radius: 5px; border:1px solid #ddd;" oninput="saveConfig()"></div>
 </div>
 
 <div class="grid" id="grid"></div>
 
 <div id="editOverlay" onclick="closePanel()"></div>
 <div id="editPanel" class="hidden">
-    <div class="panel-header" id="panelTitle">第一梯次</div>
+    <div class="panel-header" id="panelTitle">梯次預約</div>
     <div class="panel-body">
-        <div class="form-group">
-            <label>報到時間設定</label>
-            <div class="row-flex">
-                <input id="startH" type="number" class="time-input">:<input id="startM" type="number" class="time-input">
-                <span>～</span>
-                <input id="endH" type="number" class="time-input">:<input id="endM" type="number" class="time-input">
+        <div class="form-line">
+            <label>梯次時間：</label>
+            <div class="time-group">
+                <input id="startH" type="number">:<input id="startM" type="number">
+                <span>-</span>
+                <input id="endH" type="number">:<input id="endM" type="number">
             </div>
         </div>
         
-        <div class="row-flex" style="margin-bottom: 15px;">
-            <div style="flex:1">
-                <label>可報名人數</label>
-                <input type="number" id="editTotal" oninput="calculateRemain()">
-            </div>
-            <div style="flex:1">
-                <label>已報名人數</label>
-                <input type="number" id="editUsed" oninput="calculateRemain()">
-            </div>
-            <div style="flex:1; text-align: center;">
-                <label>可遞補</label>
-                <div id="remainText" class="remain-num">50</div>
-            </div>
+        <div class="form-line">
+            <label>預約人數：</label>
+            <input type="number" id="inputNum" placeholder="請輸入本次增加人數">
         </div>
 
-        <div class="form-group">
-            <label>預約人數</label></label>
-            <input type="tel" id="leaderPhone" placeholder="請輸入預約人數">
+        <div class="form-line">
+            <label>領隊姓名：</label>
+            <input type="text" id="leaderName" placeholder="姓名">
         </div>
-        <div class="form-group">
-            <label>領隊姓名 (每次預約請重新輸入)</label>
-            <input type="text" id="leaderName" placeholder="請輸入姓名">
+        
+        <div class="form-line">
+            <label>領隊電話：</label>
+            <input type="tel" id="leaderPhone" placeholder="電話">
         </div>
-        <div class="form-group">
-            <label>領隊電話</label>
-            <input type="tel" id="leaderPhone" placeholder="請輸入電話">
+
+        <div style="font-size: 13px; color: var(--secondary); text-align: center; margin-bottom: 10px;">
+            (目前已報名: <span id="currentUsedDisplay">0</span> / 總量: 50)
         </div>
-       
+        
         <div class="btn-group">
             <button class="btn-cancel" onclick="closePanel()">取消</button>
-            <button class="btn-save" onclick="handleDataSave(false)">儲存時間</button>
-            <button class="btn-confirm" onclick="handleDataSave(true)">確認並列印</button>
+            <button class="btn-confirm" onclick="handleDataSave(true)">確定列印</button>
         </div>
     </div>
 </div>
 
 <script>
-// 基礎梯次資料
 const defaultData = [
     [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'], [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
     [5,'第五梯次','10:45-11:00'], [6,'第六梯次','11:15-11:30'], [7,'第七梯次','12:45-13:00'], [8,'第八梯次','13:15-13:30']
@@ -138,7 +126,6 @@ const defaultData = [
 
 let currentCardNo = null;
 
-// 初始化頁面
 function init() {
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
@@ -159,28 +146,28 @@ function init() {
         card.dataset.no = id;
         card.innerHTML = `
             <div class="status-tag" style="background:${remain <= 0 ? 'var(--danger)' : 'var(--success)'}">${remain <= 0 ? '已滿額' : '有空位'}</div>
-            <div class="card-header"><div class="batch-name">${item[1]}</div><div style="color:var(--secondary); font-size:12px;">${time}</div></div>
+            <div class="card-header">
+                <div class="batch-name">${item[1]}</div>
+                <div style="color:var(--secondary); font-size:13px; font-weight:600;">${time}</div>
+            </div>
             <div class="card-body">
                 <div class="info-row">可報名人數：<span>${record.total}</span></div>
                 <div class="info-row">已報名人數：<span style="color:var(--primary)">${record.used}</span></div>
                 <div class="info-row" style="color:var(--danger)">可遞補人數：<span>${Math.max(0, remain)}</span></div>
             </div>
         `;
-        card.onclick = () => openEdit(id, item[1], time, record.total, record.used);
+        card.onclick = () => openEdit(id, item[1], time, record.used);
         grid.appendChild(card);
     });
     filterBatches();
 }
 
-// 開啟編輯視窗
-function openEdit(id, title, timeStr, total, used) {
+function openEdit(id, title, timeStr, used) {
     currentCardNo = id;
     document.getElementById('editPanel').classList.remove('hidden');
     document.getElementById('editOverlay').style.display = 'block';
-    
     document.getElementById('panelTitle').innerText = title;
     
-    // 解析時間
     const times = timeStr.split('-');
     const start = times[0].split(':');
     const end = times[1].split(':');
@@ -189,65 +176,55 @@ function openEdit(id, title, timeStr, total, used) {
     document.getElementById('endH').value = end[0];
     document.getElementById('endM').value = end[1];
 
-    // 設定人數
-    document.getElementById('editTotal').value = total;
-    document.getElementById('editUsed').value = used;
-    calculateRemain();
-
-    // 【關鍵修正：清空個資】
-    // 每次打開視窗時，強制清空姓名與電話，不保留上一次的「123」
+    document.getElementById('currentUsedDisplay').innerText = used;
+    document.getElementById('inputNum').value = ""; // 清空輸入框
     document.getElementById('leaderName').value = ""; 
     document.getElementById('leaderPhone').value = "";
 }
 
-function calculateRemain() {
-    const total = parseInt(document.getElementById('editTotal').value) || 0;
-    const used = parseInt(document.getElementById('editUsed').value) || 0;
-    document.getElementById('remainText').innerText = Math.max(0, total - used);
-}
-
-// 儲存邏輯
 function handleDataSave(shouldPrint) {
     const id = currentCardNo;
-    const total = parseInt(document.getElementById('editTotal').value);
-    const used = parseInt(document.getElementById('editUsed').value);
+    const addedNum = parseInt(document.getElementById('inputNum').value) || 0;
     const name = document.getElementById('leaderName').value;
     const phone = document.getElementById('leaderPhone').value;
-    const timeText = `${document.getElementById('startH').value.padStart(2,'0')}:${document.getElementById('startM').value.padStart(2,'0')}-${document.getElementById('endH').value.padStart(2,'0')}:${document.getElementById('endM').value.padStart(2,'0')}`;
+    const timeText = `${document.getElementById('startH').value.toString().padStart(2,'0')}:${document.getElementById('startM').value.toString().padStart(2,'0')}-${document.getElementById('endH').value.toString().padStart(2,'0')}:${document.getElementById('endM').value.toString().padStart(2,'0')}`;
 
-    // 更新 localStorage
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
-    dailyRecords[id] = { total, used }; // 我們這裡不存姓名電話到資料庫，確保下次打開是乾淨的
+    const record = dailyRecords[id] || { used: 0, total: 50 };
+    
+    // 【核心修正】將輸入的人數累加到已報名人數中
+    record.used += addedNum; 
+    dailyRecords[id] = record;
     localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
 
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     savedTimes[id] = timeText;
     localStorage.setItem('batch_times', JSON.stringify(savedTimes));
 
-    if (shouldPrint) {
-        printTicket(timeText, name, phone, used);
+    if (shouldPrint && addedNum > 0) { 
+        printTicket(timeText, name, phone, addedNum); 
     }
-
-    init();
+    
+    init(); 
     closePanel();
 }
 
-// 列印功能 (適配熱感紙)
 function printTicket(time, name, phone, used) {
     const today = new Date();
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-    const printWin = window.open('', '', 'width=400');
+    const printWin = window.open('', '', 'width=450,height=800');
     
-    const html = `
-        <div style="width:72mm; font-family:sans-serif; text-align:center; padding:10px;">
-            <h2 style="margin:0;">後慈湖預約單</h2>
-            <p style="font-size:14px; margin:5px;">(現場遞補)</p>
-            <table border="1" style="width:100%; border-collapse:collapse; margin-top:10px; font-size:16px;">
-                <tr><th style="padding:5px; background:#eee;">日期</th><td style="padding:5px;">${dateStr}</td></tr>
-                <tr><th style="padding:5px; background:#eee;">時間</th><td style="padding:5px;">${time}</td></tr>
-                <tr><th style="padding:5px; background:#eee;">姓名</th><td style="padding:5px;">${name || ''}</td></tr>
-                <tr><th style="padding:5px; background:#eee;">電話</th><td style="padding:5px;">${phone || ''}</td></tr>
-                <tr><th style="padding:5px; background:#eee;">人數</th><td style="padding:5px; font-weight:bold;">${used} 人</td></tr>
+    const ticketHtml = (type) => `
+        <div style="width: 72mm; margin: 0 auto; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
+            <h1 style="font-size: 24px; margin: 0;">後慈湖預約單</h1>
+            <h2 style="font-size: 20px; margin: 5px 0 15px 0;">(${type})</h2>
+            <p style="font-size: 16px; font-weight: bold; margin: 10px 0; border:1px solid #000; display:inline-block; padding:2px 10px;">現場遞補</p>
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
+                <tr><th style="border: 1px solid black; padding: 10px 5px; width: 30%; background-color: #f2f2f2; text-align: center;">日期</th><td style="border: 1px solid black; padding: 10px 10px; font-weight: bold;">${dateStr}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">時間</th><td style="border: 1px solid black; padding: 10px 10px; font-weight: bold;">${time}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">姓名</th><td style="border: 1px solid black; padding: 10px 10px;">${name || '__________'}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">電話</th><td style="border: 1px solid black; padding: 10px 10px;">${phone || '__________'}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 10px 5px; background-color: #f2f2f2; text-align: center;">人數</th><td style="border: 1px solid black; padding: 10px 10px; font-weight: 900; font-size: 22px;">${used} 人</td></tr>
             </table>
             <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
                 1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
@@ -257,18 +234,15 @@ function printTicket(time, name, phone, used) {
         </div>
     `;
 
-    
-    printWin.document.write(html);
+    printWin.document.write(`
+        <html><body style="margin:0;" onload="window.print(); setTimeout(() => window.close(), 500);">
+            ${ticketHtml('遊客執據')}
+            <div style="border-top: 2px dashed #000; margin: 30px 0; width: 100%;"></div>
+            ${ticketHtml('站端留存')}
+            <div style="height: 30mm;"></div>
+        </body></html>
+    `);
     printWin.document.close();
-    printWin.print();
-    printWin.close();
-}
-
-function closePanel() { document.getElementById('editPanel').classList.add('hidden'); document.getElementById('editOverlay').style.display = 'none'; }
-function saveConfig() { localStorage.setItem('max_batch_count', document.getElementById('maxBatchInput').value); init(); }
-function filterBatches() {
-    const max = parseInt(document.getElementById('maxBatchInput').value);
-    document.querySelectorAll('.card').forEach(c => c.classList.toggle('hidden', parseInt(c.dataset.no) > max));
 }
 
 init();
