@@ -59,6 +59,7 @@
         button:active { opacity: 0.7; }
 
         .btn-print { background: var(--primary); color: white; flex: 2; }
+        .btn-save { background: #10b981; color: white; flex: 1.5; }
         .btn-cancel { background: var(--secondary); color: white; flex: 1; }
 
         .grid {
@@ -205,15 +206,15 @@
                 <input id="leaderPhone" type="tel" placeholder="電話">
             </div>
         </div>
-        <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
             <button class="btn-cancel" onclick="closePanel()">取消</button>
-            <button class="btn-print" onclick="saveAndPrint()">確定列印</button>
+            <button class="btn-save" onclick="handleDataSave(false)">僅儲存</button>
+            <button class="btn-print" onclick="handleDataSave(true)">儲存並列印</button>
         </div>
     </div>
 </div>
 
 <script>
-// 初始化梯次數據
 const defaultData = [
     [1,'第一梯次','08:45-09:00'], [2,'第二梯次','09:15-09:30'],
     [3,'第三梯次','09:45-10:00'], [4,'第四梯次','10:15-10:30'],
@@ -229,12 +230,10 @@ let currentCard = null;
 
 function init() {
     const today = new Date().toLocaleDateString('zh-TW');
-    // 跨日自動清除記錄
     if (localStorage.getItem('last_open_date') !== today) {
         localStorage.setItem('daily_records', '{}');
         localStorage.setItem('last_open_date', today);
     }
-    
     const savedTimes = JSON.parse(localStorage.getItem('batch_times') || '{}');
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
     const savedMax = localStorage.getItem('max_batch_count') || 8;
@@ -287,7 +286,6 @@ function openEdit(card) {
     document.getElementById('editOverlay').style.display = 'block';
     document.getElementById('panelTitle').innerText = card.querySelector('.batch-name').innerText;
     
-    // 解析時間
     const time = card.querySelector('.batch-time').innerText.split('-');
     const start = time[0].split(':');
     const end = time[1].split(':');
@@ -323,7 +321,8 @@ function closePanel() {
     document.getElementById('editOverlay').style.display = 'none';
 }
 
-function saveAndPrint() {
+// 核心功能修改：合併儲存邏輯，根據參數決定是否列印
+function handleDataSave(shouldPrint) {
     if (!currentCard) return;
     const id = currentCard.dataset.no;
 
@@ -338,7 +337,6 @@ function saveAndPrint() {
     const lName = document.getElementById('leaderName').value;
     const lPhone = document.getElementById('leaderPhone').value;
 
-    // 儲存至資料庫
     const dailyRecords = JSON.parse(localStorage.getItem('daily_records') || '{}');
     dailyRecords[id] = { total, used, leader: lName, phone: lPhone };
     localStorage.setItem('daily_records', JSON.stringify(dailyRecords));
@@ -347,8 +345,11 @@ function saveAndPrint() {
     savedTimes[id] = timeText;
     localStorage.setItem('batch_times', JSON.stringify(savedTimes));
 
-    // 呼叫列印
-    printTicket(timeText, lName, lPhone, used);
+    // 如果點擊的是列印按鈕才執行列印
+    if (shouldPrint) {
+        printTicket(timeText, lName, lPhone, used);
+    }
+
     init();
     closePanel();
 }
@@ -358,37 +359,18 @@ function printTicket(time, name, phone, used) {
     const dateStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     const printWin = window.open('', '', 'width=450,height=800');
     
-    // 預約單模板 (完全參考上傳圖片樣板)
     const ticketHtml = (type) => `
         <div style="width: 80mm; margin: 0 auto; font-family: 'Microsoft JhengHei', sans-serif; padding: 10px; text-align: center; color: #000;">
             <h1 style="font-size: 28px; margin: 0;">後慈湖預約單</h1>
             <h2 style="font-size: 24px; margin: 5px 0 15px 0;">(${type})</h2>
-            
             <p style="font-size: 16px; font-weight: bold; margin: 10px 0;">現場遞補</p>
-            
             <table style="width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 18px; text-align: left;">
-                <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; width: 30%; background-color: #f2f2f2; text-align: center;">日期</th>
-                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${dateStr}</td>
-                </tr>
-                <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">時間</th>
-                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${time}</td>
-                </tr>
-                <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">姓名</th>
-                    <td style="border: 1px solid black; padding: 12px 10px;">${name || '__________'}</td>
-                </tr>
-                <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">電話</th>
-                    <td style="border: 1px solid black; padding: 12px 10px;">${phone || '__________'}</td>
-                </tr>
-                <tr>
-                    <th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">人數</th>
-                    <td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${used} 人</td>
-                </tr>
+                <tr><th style="border: 1px solid black; padding: 12px 10px; width: 30%; background-color: #f2f2f2; text-align: center;">日期</th><td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${dateStr}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">時間</th><td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${time}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">姓名</th><td style="border: 1px solid black; padding: 12px 10px;">${name || '__________'}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">電話</th><td style="border: 1px solid black; padding: 12px 10px;">${phone || '__________'}</td></tr>
+                <tr><th style="border: 1px solid black; padding: 12px 10px; background-color: #f2f2f2; text-align: center;">人數</th><td style="border: 1px solid black; padding: 12px 10px; font-weight: bold;">${used} 人</td></tr>
             </table>
-
             <div style="text-align: left; font-size: 13px; margin-top: 15px; line-height: 1.6;">
                 1. 如有符合入園相關優惠者，一人代表收集證件(身分證、志工榮譽卡、身心障礙手冊等)。<br>
                 2. 導覽服務站電話：<span style="color: blue; text-decoration: underline;">03-3889554</span>。
@@ -397,19 +379,15 @@ function printTicket(time, name, phone, used) {
     `;
 
     printWin.document.write(`
-        <html>
-            <head><title>後慈湖列印單</title></head>
-            <body style="margin:0;" onload="window.print(); setTimeout(() => window.close(), 500);">
-                ${ticketHtml('遊客執據')}
-                <div style="border-top: 2px dashed #000; margin: 30px 0; width: 100%;"></div>
-                ${ticketHtml('站端留存')}
-            </body>
-        </html>
+        <html><body style="margin:0;" onload="window.print(); setTimeout(() => window.close(), 500);">
+            ${ticketHtml('遊客執據')}
+            <div style="border-top: 2px dashed #000; margin: 30px 0; width: 100%;"></div>
+            ${ticketHtml('站端留存')}
+        </body></html>
     `);
     printWin.document.close();
 }
 
-// 啟動程序
 init();
 </script>
 </body>
