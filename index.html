@@ -264,8 +264,7 @@ function init() {
                 <div class="info-row">可報名：<span>${record.total}</span></div>
                 <div class="info-row">已報名：<span style="color:#2563eb">${record.used}</span></div>
                 <div class="info-row" style="color:var(--danger); font-weight:bold;">可遞補：<span>${Math.max(0, remain)}</span></div>
-                <div class="leader-detail">${record.leader ? `👤 ${record.leader} | 📞 ${record.phone}` : ''}</div>
-            </div>
+                </div>
         `;
         card.onclick = () => openEdit(card);
         grid.appendChild(card);
